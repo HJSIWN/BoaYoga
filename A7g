@@ -6,7 +6,6 @@ local vim = game:GetService("VirtualInputManager")
 local UIS = game:GetService("UserInputService")
 local GuiService = game:GetService("GuiService")
 
-
 TweenService = game:GetService("TweenService")
 RunService = game:GetService("RunService")
 Lighting = game:GetService("Lighting")
@@ -20,7 +19,7 @@ Camera = workspace.CurrentCamera
 screenSize = Camera.ViewportSize
 plrGui = player.PlayerGui
 
-local ScreenGui = Instance.new("ScreenGui", plrGui)
+local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
 UiIs_Close = false
 
 local function MakeDraggableButton(button: ImageButton, MoveFrame)
@@ -375,6 +374,12 @@ Tabs.Mode2:Toggle({
 	Value = false,
 	Callback = function(state)
 		FarmTitan = state
+		if FarmTitan == false then
+			for i=1,5 do
+				GuiService.SelectedObject = nil
+				wait(0.1)
+			end
+		end
 		task.spawn(function()
 			while FarmTitan do
 				for i,v in ipairs(Mutations:GetChildren()) do
@@ -411,6 +416,7 @@ Tabs.Mode2:Toggle({
 							vim:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
 						end
 						GuiService.SelectedObject = nil
+						
 						local AttackHitbox = v:FindFirstChild("AttackHitbox")
 						if AttackHitbox and CanKill == true and FarmTitan == true then
 							local Hitbox = AttackHitbox:FindFirstChild("Head"):FindFirstChild("Hitbox")
