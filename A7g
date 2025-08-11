@@ -197,6 +197,7 @@ Tabs.Mode1:Slider({
 		jumpPowerSet = tonumber(value)
 	end
 })
+
 task.spawn(function()
 	while wait(0.1) do
 		if humanoid and humanoid.Parent then
@@ -366,6 +367,8 @@ Tabs.Mode2:Dropdown({
 	end
 })
 
+NearVlaue = nil
+NearMob = nil
 Weapon_UI = plrGui:FindFirstChild("BackpackUI"):FindFirstChild("Slots"):FindFirstChild("1")
 CanKill = false
 FarmTitan = false
@@ -381,102 +384,116 @@ Tabs.Mode2:Toggle({
 			end
 		end
 		task.spawn(function()
-			while FarmTitan do
-				for i,v in ipairs(Mutations:GetChildren()) do
-					if v:IsA("Model") and v:FindFirstChildOfClass("Humanoid") and v.PrimaryPart and FarmTitan == true then
-						if v:FindFirstChild("Stats") then
-							local Stats_Titan = v:FindFirstChild("Stats")
-							if Stats_Titan:FindFirstChild("level") then
-								if Stats_Titan.level.Value > LowLevelNeedKill and Stats_Titan.level.Value < MaxLevelNeedKill then
-									CanKill = true
-								end
-							end
-							if Stats_Titan:FindFirstChild("body") then
-								if matchesAllowedKeyword(Stats_Titan.body.Value, NameNeedKill) then
-									CanKill = true
-								else
-									CanKill = false
-								end
-							end
-						end
-						if character:FindFirstChild("ClientEquipped") then
-							if not character:FindFirstChild("ClientEquipped"):FindFirstChild("Sword") then
-								for i=1,2 do
-									GuiService.SelectedObject = Weapon_UI
-									task.wait(0.1)
-									vim:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-									vim:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-									wait()
-								end
-							end
-						else
-							GuiService.SelectedObject = Weapon_UI
-							task.wait(0.1)
-							vim:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-							vim:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-						end
-						GuiService.SelectedObject = nil
-						
-						local AttackHitbox = v:FindFirstChild("AttackHitbox")
-						if AttackHitbox and CanKill == true and FarmTitan == true then
-							local Hitbox = AttackHitbox:FindFirstChild("Head"):FindFirstChild("Hitbox")
-							local Enamies_Humanoid = v:FindFirstChildOfClass("Humanoid")
-							local Enamies_HumanoidRootPart = v.PrimaryPart
-							if Enamies_HumanoidRootPart and Hitbox then
-								local Dis = (HMNRT.Position - Enamies_HumanoidRootPart.Position).Magnitude
-								local Time_tween = Dis / FlyFarmSpeed
-								Hitbox.Transparency = .5
-								Hitbox.Size = Vector3.new(50,50,50)
-								tweenPart(HMNRT, Enamies_HumanoidRootPart, Time_tween, "Linear", Vector3.new(5, 0, 0))
-								task.wait(Time_tween)
-								WindUI:Notify({
-									Title = "ทวีนเสร็จแล้ว",
-									Content = "Tween End",
-									Duration = 5,
-								})
-								repeat
-									if Hitbox then
-										local Time_Delay = 0
-										local Attack = false
-										repeat
-											vim:SendMouseButtonEvent(screenSize.X / 2, screenSize.Y / 2, 1, true, game, 0)
-											Time_Delay = Time_Delay + 0.2
-											task.wait(0.2)
-											HMNRT.CFrame = CFrame.lookAt(HMNRT.Position, Hitbox.Position)
-											if Attack == false and Time_Delay > 0.7 and Time_Delay < 0.8 then
-												Click_Function(screenSize.X / 2, screenSize.Y / 2)
-												Attack = true
-												WindUI:Notify({
-													Title = "ฟันดาบ",
-													Content = "Attack",
-													Duration = 1,
-												})
+			while true do
+				if FarmTitan then
+					repeat
+						if NearMob == nil and NearVlaue == nil then
+							NearVlaue = math.huge
+							NearMob = nil
+							for i,v in ipairs(Mutations:GetChildren()) do
+								if v:IsA("Model") and v:FindFirstChildOfClass("Humanoid") and v.PrimaryPart and FarmTitan == true then
+									local Enamies_HumanoidRootPart = v.PrimaryPart
+									if Enamies_HumanoidRootPart then
+										if v:FindFirstChild("Stats") then
+											local Stats_Titan = v:FindFirstChild("Stats")
+											if Stats_Titan:FindFirstChild("level") then
+												if Stats_Titan.level.Value > LowLevelNeedKill and Stats_Titan.level.Value < MaxLevelNeedKill then
+													CanKill = true
+												end
 											end
-											if Time_Delay > 1.5 then
-												HMNRT.CFrame = Hitbox.CFrame * CFrame.new(0,0,15)
-											else
-												Click_Function(screenSize.X / 2, screenSize.Y / 2)
-												HMNRT.CFrame = Hitbox.CFrame * CFrame.new(0,150,300)
+											if Stats_Titan:FindFirstChild("body") then
+												if matchesAllowedKeyword(Stats_Titan.body.Value, NameNeedKill) then
+													CanKill = true
+												else
+													CanKill = false
+												end
 											end
-											vim:SendMouseButtonEvent(screenSize.X / 2, screenSize.Y / 2, 1, false, game, 0)
-										until Time_Delay >= 1.8 or FarmTitan == false
+										end
+										local Dis = (HMNRT.Position - Enamies_HumanoidRootPart.Position).Magnitude
+										if Dis < NearVlaue and CanKill == true then
+											NearMob = v
+											NearVlaue = Dis
+										end
 									end
-								until Enamies_Humanoid.Health <= 0 or v == nil or humanoid.Health <= 0 or FarmTitan == false
-								if Hitbox then
-									Hitbox.Transparency = 1
-								end
-								WindUI:Notify({
-									Title = "ฆ่าเสร็จแล้ว",
-									Content = "Killed",
-									Duration = 5,
-								})
-								if humanoid.Health <= 0 then
-									FarmTitan = false
 								end
 							end
-							task.wait(1)
 						end
-					end
+						task.wait(0.1)
+					until FarmTitan == false
+				end
+				task.wait(1)
+			end
+		end)
+		
+		
+		task.spawn(function()
+			while true do
+				if FarmTitan then
+					repeat
+						if NearMob ~= nil and NearVlaue ~= nil then
+							local AttackHitbox = NearMob:FindFirstChild("AttackHitbox")
+							if AttackHitbox and CanKill == true and FarmTitan == true then
+								local Hitbox = AttackHitbox:FindFirstChild("Head"):FindFirstChild("Hitbox")
+								local Enamies_Humanoid = NearMob:FindFirstChildOfClass("Humanoid")
+								local Enamies_HumanoidRootPart = NearMob.PrimaryPart
+								if Enamies_HumanoidRootPart and Hitbox then
+									local Time_tween = NearVlaue / FlyFarmSpeed
+									Hitbox.Transparency = .5
+									Hitbox.Size = Vector3.new(50,50,50)
+									tweenPart(HMNRT, Enamies_HumanoidRootPart, Time_tween, "Linear", Vector3.new(5, 0, 0))
+									task.wait(Time_tween)
+									WindUI:Notify({
+										Title = "ทวีนเสร็จแล้ว",
+										Content = "Tween End",
+										Duration = 5,
+									})
+									repeat
+										if Hitbox then
+											local Time_Delay = 0
+											local Attack = false
+											repeat
+												--vim:SendMouseButtonEvent(screenSize.X / 2, screenSize.Y / 2, 1, true, game, 0)
+												Time_Delay = Time_Delay + 0.2
+												task.wait(0.2)
+												HMNRT.CFrame = CFrame.lookAt(HMNRT.Position, Hitbox.Position)
+												if Attack == false and Time_Delay > 0.7 and Time_Delay < 0.8 then
+													Click_Function(screenSize.X / 2, screenSize.Y / 2)
+													Attack = true
+													WindUI:Notify({
+														Title = "ฟันดาบ",
+														Content = "Attack",
+														Duration = 1,
+													})
+												end
+												if Time_Delay > 1.5 then
+													HMNRT.CFrame = Hitbox.CFrame * CFrame.new(0,0,15)
+												else
+													Click_Function(screenSize.X / 2, screenSize.Y / 2)
+													HMNRT.CFrame = Hitbox.CFrame * CFrame.new(0,150,300)
+												end
+												--vim:SendMouseButtonEvent(screenSize.X / 2, screenSize.Y / 2, 1, false, game, 0)
+											until  Enamies_Humanoid.Health <= 0 or Time_Delay >= 1.8 or FarmTitan == false
+										end
+										wait()
+									until Enamies_Humanoid.Health <= 0 or NearMob == nil or humanoid.Health <= 0 or FarmTitan == false
+									if Hitbox then
+										Hitbox.Transparency = 1
+									end
+									WindUI:Notify({
+										Title = "ฆ่าเสร็จแล้ว",
+										Content = "Killed",
+										Duration = 5,
+									})
+									if humanoid.Health <= 0 then
+										FarmTitan = false
+									end
+								end
+							end
+						end
+						NearVlaue = nil
+						NearMob = nil
+						task.wait(0.1)
+					until FarmTitan == false
 				end
 				task.wait(1)
 			end
