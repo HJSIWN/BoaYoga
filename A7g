@@ -295,6 +295,52 @@ Tabs.Mode1:Button({
 	end,
 })
 
+Tabs.Mode1:Button({
+	Title = "ลดความแหล็ค",
+	Desc = "คลิกเพื่อเซ็ท",
+	Callback = function()
+		pcall(function()
+			Lighting.Brightness = 4
+			for _, obj in ipairs(workspace:GetDescendants()) do
+				if obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
+					obj.Enabled = false
+				end
+			end
+			workspace.DescendantAdded:Connect(function(obj)
+				if obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
+					obj.Enabled = false
+				end
+			end)
+			for _, obj in ipairs(workspace:GetDescendants()) do
+				if obj:IsA("PointLight") or obj:IsA("SpotLight") or obj:IsA("SurfaceLight") then
+					obj.Enabled = false
+				end
+			end
+			workspace.DescendantAdded:Connect(function(obj)
+				if obj:IsA("PointLight") or obj:IsA("SpotLight") or obj:IsA("SurfaceLight") then
+					obj.Enabled = false
+				end
+			end)
+			Lighting.GlobalShadows = false
+			Lighting.FogEnd = 100000
+			Lighting.Brightness = 1
+			pcall(function()
+				Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+			end)
+			for _, obj in ipairs(workspace:GetDescendants()) do
+				if obj:IsA("Decal") or obj:IsA("Texture") then
+					obj:Destroy()
+				end
+			end
+		end)
+		WindUI:Notify({
+			Title = "คุณได้เปิดฟังชั่น",
+			Content = "ลดความแหล็ค",
+			Duration = 5,
+		})
+	end,
+})
+
 local Wiggle = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Mutation"):WaitForChild("Wiggle")
 Titan_NotEat = false
 Tabs.Mode1:Toggle({
@@ -424,7 +470,6 @@ Tabs.Mode2:Toggle({
 				task.wait(1)
 			end
 		end)
-		
 		
 		task.spawn(function()
 			while true do
