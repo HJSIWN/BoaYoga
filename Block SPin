@@ -520,7 +520,7 @@ task.spawn(function()
 					GuiService.SelectedObject = nil
 					task.wait(1)
 					UsePathFinding = false
-				until player:GetAttribute("Job") == "janitor" or Mob_Farm == false or Depositing == false
+				until player:GetAttribute("Job") == "janitor" or Mob_Farm == false or Depositing == true
 				WindUI:Notify({
 					Title = "สมัครงานถูพื้น",
 					Content = "สำเร็จ",
@@ -541,11 +541,11 @@ task.spawn(function()
 						local smartWalkToPuddles =	smartWalkTo(NearPart.Position)
 						repeat
 							task.wait(0.5)
-						until smartWalkToPuddles and smartWalkToPuddles == true or Depositing == false
+						until smartWalkToPuddles and smartWalkToPuddles == true or Depositing == true
 						repeat
 							StuckMob = StuckMob + 0.5
 							task.wait(0.5)
-						until NearPart.Size.Z < 0.002 or StuckMob >= 30 or Depositing == false
+						until NearPart.Size.Z < 0.002 or StuckMob >= 20 or Depositing == true
 						UsePathFinding = false
 						StuckMob = 0
 						NearPart.Parent = SomtankInfo_Puddles
