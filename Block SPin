@@ -519,13 +519,13 @@ task.spawn(function()
 					task.wait(0.1)
 					GuiService.SelectedObject = nil
 					task.wait(1)
+					UsePathFinding = false
 				until player:GetAttribute("Job") == "janitor" or Mob_Farm == false or Depositing == false
 				WindUI:Notify({
 					Title = "สมัครงานถูพื้น",
 					Content = "สำเร็จ",
 					Duration = 5,
 				})
-				UsePathFinding = false
 			else
 				repeat
 					repeat
@@ -545,7 +545,7 @@ task.spawn(function()
 						repeat
 							StuckMob = StuckMob + 0.5
 							task.wait(0.5)
-						until NearPart.Size.Z < 0.002 or StuckMob >= 6 or Depositing == false
+						until NearPart.Size.Z < 0.002 or StuckMob >= 30 or Depositing == false
 						UsePathFinding = false
 						StuckMob = 0
 						NearPart.Parent = SomtankInfo_Puddles
