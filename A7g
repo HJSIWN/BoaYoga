@@ -300,6 +300,9 @@ Tabs.Mode1:Button({
 	Desc = "คลิกเพื่อเซ็ท",
 	Callback = function()
 		pcall(function()
+			if workspace:WaitForChild("Map"):WaitForChild("Houses") then
+				workspace:WaitForChild("Map"):WaitForChild("Houses"):Destroy()
+			end
 			Lighting.Brightness = 4
 			for _, obj in ipairs(workspace:GetDescendants()) do
 				if obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
