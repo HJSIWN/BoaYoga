@@ -33,8 +33,15 @@ if getgenv().Setting then
       local HttpService = game:GetService("HttpService")
       local Setting_Farm = ']] .. jsonData .. [['
       getgenv().Setting = HttpService:JSONDecode(Setting_Farm)
-      loadstring(game:HttpGet("https://raw.githubusercontent.com/HJSIWN/BoaYoga/refs/heads/main/nk-hz2"))()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/HJSIWN/BoaYoga/refs/heads/main/nk-hz"))()
     ]])
+else
+	getgenv().Setting = {
+		Map = "School",-- [ School / Sewers ]
+		Difficulty = "Normal",-- [ Normal / Hard  / Nightmare ]
+		Mode = "None",-- [ None / Campain  / Endless ]
+		Language = "Thai"--[ Thai / English ]
+	}
 end
 
 -----------------------------------------------------
@@ -415,8 +422,6 @@ Toggle_AutoCreateRoom = Tabs.Mode2:Toggle({
 	Value = false,
 	Callback = function(state)
 		AutoCreateRoom = state
-		print("AutoCreateRoom")
-
 	end
 })
 
@@ -433,7 +438,7 @@ Slider_Cool_Down_Auto_Create = Tabs.Mode2:Slider({
 	end
 })
 
-Choose_Map_Farm = getgenv().Setting.Map or "School"
+Choose_Map_Farm = getgenv().Setting.Map
 Dropdown_Choose_Map_Farm = Tabs.Mode2:Dropdown({
 	Title = Translate("แมพที่ต้องการฟาร์ม", "Map needs farming"),
 	Values = { "School", "Sewers" },--"Sewers"
@@ -443,7 +448,7 @@ Dropdown_Choose_Map_Farm = Tabs.Mode2:Dropdown({
 	end
 })
 
-Choose_Difficulty_Farm = getgenv().Setting.Difficulty or "Normal"
+Choose_Difficulty_Farm = getgenv().Setting.Difficulty
 Dropdown_Choose_Difficulty_Farm = Tabs.Mode2:Dropdown({
 	Title = Translate("ระดับความยากที่ต้องการฟาร์ม", "Difficulty to farm"),
 	Values = { "Normal", "Hard", "Nightmare"},
@@ -453,7 +458,7 @@ Dropdown_Choose_Difficulty_Farm = Tabs.Mode2:Dropdown({
 	end
 })
 
-Choose_Mode_Farm = getgenv().Setting.Mode or "None"
+Choose_Mode_Farm = getgenv().Setting.Mode
 Dropdown_Choose_Mode_Farm = Tabs.Mode2:Dropdown({
 	Title = Translate("โหมดที่ต้องการฟาร์ม", "Mode to farm"),
 	Values = {"None","Campaign", "Endless"},
@@ -678,6 +683,7 @@ task.spawn(function()
 	
 	while true do
 		if AutoCreateRoom then
+			print("AutoCreateRoom is Reapeat")
 			repeat
 				if TimeReTry >= 5 then
 					serverHop(15)
@@ -810,7 +816,6 @@ task.spawn(function()
 		if AutoUseSkill then
 			repeat
 				local NearZombie, NearValue = ScanNearZombie()
-				--print("Return Back NearValue : "..NearValue)
 				if NearValue < 15 then
 					Check_And_UseSkill()
 				end
