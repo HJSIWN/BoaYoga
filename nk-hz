@@ -5,7 +5,10 @@ if getgenv().AutoSaveLoop then
 	getgenv().AutoSaveLoop:Disconnect()
 end
 
-getgenv().TranslateEnv = "Thai"
+if getgenv().SomtankIsRun then return end
+getgenv().SomtankIsRun = true
+
+getgenv().TranslateEnv = "Eng"-- Thai / Eng
 
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 local queueScript = string.format([[loadstring(game:HttpGet("https://raw.githubusercontent.com/HJSIWN/BoaYoga/refs/heads/main/nk-hz"))()]])
@@ -155,11 +158,13 @@ do
 		Title = "กลุ่ม 1",
 		Opened = true,
 	})
+	
+	Tabs.Mode1 = Tabs.Player:Tab({ Title = Translate("ผู้เล่น", "Player"), Icon = "rbxassetid://2795572800" })
 
-	Tabs.Mode1 = Tabs.Player:Tab({ Title = "ผู้เล่น", Icon = "rbxassetid://2795572800" })
+	Tabs.Mode2 = Tabs.Player:Tab({ Title = Translate("ฟาร์ม", "Farm"), Icon = "rbxassetid://9008236330" })
 
-	Tabs.Mode2 = Tabs.Player:Tab({ Title = "ฟาร์ม", Icon = "rbxassetid://9008236330" })
-
+	Tabs.Mode3 = Tabs.Player:Tab({ Title = Translate("สุ่ม", "Spin"), Icon = "rbxassetid://438217404" })
+	
 end
 
 Window:SelectTab(1)
@@ -196,6 +201,58 @@ function clip()
 	end
 	originalCanCollideMap = {}
 end
+
+Section = Tabs.Mode3:Section({ 
+	Title = "Section",
+	TextXAlignment = "Left",
+	TextSize = 25,
+})
+Section:SetTitle(Translate("⚔️ สุ่มหาอาวุธ", "⚔️ Random find Weapon"))
+
+Choose_Target_Weapon = "Katana"
+Dropdown_Choose_Target_Weapon = Tabs.Mode3:Dropdown({
+	Title = Translate("อาวุธที่อยากได้", "Target Weapon"),
+	Values = { "Baseball", "Axes", "Guitar", "Dual gun", "Katana", "Greatsword" },
+	Value = "Katana",
+	Callback = function(option) 
+		Choose_Target_Weapon = option
+	end
+})
+
+Auto_Random_Find_Weapon = false
+Tabs.Mode3:Toggle({
+	Title = Translate("ออโต้สุ่มหาอาวุธ", "Auto Random Find Weapon"),
+	Value = false,
+	Callback = function(state)
+		Auto_Random_Find_Weapon = state
+	end
+})
+
+Section = Tabs.Mode3:Section({ 
+	Title = "Section",
+	TextXAlignment = "Left",
+	TextSize = 25,
+})
+Section:SetTitle(Translate("🔮 สุ่มหาความสามารถ", "🔮 Random find Perk"))
+
+Choose_Target_Perk = "Vampire"
+Dropdown_Choose_Target_Perk = Tabs.Mode3:Dropdown({
+	Title = Translate("สามารถที่อยากได้", "Target Perk"),
+	Values = { "Berserker", "Healer", "Flame", "Critical", "Undead", "Vampire" },
+	Value = "Vampire",
+	Callback = function(option) 
+		Choose_Target_Perk = option
+	end
+})
+
+Auto_Random_Find_Perk = false
+Tabs.Mode3:Toggle({
+	Title = Translate("ออโต้สุ่มหาสามารถ", "Auto Random Find Perk"),
+	Value = false,
+	Callback = function(state)
+		Auto_Random_Find_Perk = state
+	end
+})
 
 Section = Tabs.Mode1:Section({ 
 	Title = "Section",
@@ -579,7 +636,7 @@ task.spawn(function()
 						if Part:IsA("BasePart") then
 							if Created == false and OtherPlayerNear(Part.Position, 7) then
 								HMNRT.CFrame = CFrame.new(Part.Position)
-								wait(0.05)
+								wait(0.5)
 								if StartPlaceRedo and StartPlaceRedo.Visible == true then
 									Created = true
 								end
@@ -890,6 +947,7 @@ Tabs.Mode2:Divider()
 Window:OnDestroy(function()
 	ScreenGui:Destroy()
 	ScriptIsRunning = false
+	getgenv().SomtankIsRun = false
 end)
 
 local elements = {
@@ -910,6 +968,8 @@ local elements = {
 	Toggle_X_Skill = Toggle_X_Skill,
 	Toggle_C_Skill = Toggle_C_Skill,
 	Toggle_AutoRejoin = Toggle_AutoRejoin,
+	Dropdown_Choose_Target_Weapon = Dropdown_Choose_Target_Weapon,
+	Dropdown_Choose_Target_Perk = Dropdown_Choose_Target_Perk,
 }
 for name, element in pairs(elements) do
 	myConfig:Register(name, element)
