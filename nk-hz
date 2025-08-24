@@ -439,30 +439,30 @@ Slider_Cool_Down_Auto_Create = Tabs.Mode2:Slider({
 })
 
 Choose_Map_Farm = getgenv().Setting.Map
-Dropdown_Choose_Map_Farm = Tabs.Mode2:Dropdown({
+Tabs.Mode2:Dropdown({
 	Title = Translate("แมพที่ต้องการฟาร์ม", "Map needs farming"),
 	Values = { "School", "Sewers" },--"Sewers"
-	Value = Choose_Map_Farm,
+	Value = "School",
 	Callback = function(option) 
 		Choose_Map_Farm = option
 	end
 })
 
 Choose_Difficulty_Farm = getgenv().Setting.Difficulty
-Dropdown_Choose_Difficulty_Farm = Tabs.Mode2:Dropdown({
+Tabs.Mode2:Dropdown({
 	Title = Translate("ระดับความยากที่ต้องการฟาร์ม", "Difficulty to farm"),
 	Values = { "Normal", "Hard", "Nightmare"},
-	Value = Choose_Difficulty_Farm,
+	Value = "Normal",
 	Callback = function(option) 
 		Choose_Difficulty_Farm = option
 	end
 })
 
 Choose_Mode_Farm = getgenv().Setting.Mode
-Dropdown_Choose_Mode_Farm = Tabs.Mode2:Dropdown({
+Tabs.Mode2:Dropdown({
 	Title = Translate("โหมดที่ต้องการฟาร์ม", "Mode to farm"),
 	Values = {"None","Campaign", "Endless"},
-	Value = Choose_Mode_Farm,
+	Value = "None",
 	Callback = function(option) 
 		Choose_Mode_Farm = option
 	end
@@ -527,13 +527,12 @@ Toggle_C_Skill = Tabs.Mode2:Toggle({
 	end
 })
 
-local Row1, Spin_Weapon_Frame, Spin_Perk_Frame = nil, nil, nil
-local Open_Weapon, Open_Perks = nil, nil
 
-if plrGui:WaitForChild("GUI") then
-	Row1, Spin_Weapon_Frame, Spin_Perk_Frame = plrGui:WaitForChild("GUI"):WaitForChild("Hud"):WaitForChild("Left"):WaitForChild("Row1"), nil, nil
-	Open_Weapon, Open_Perks = Row1:WaitForChild("Perks"):WaitForChild("Shape"):WaitForChild("Fill"), Row1:WaitForChild("Weapon"):WaitForChild("Shape"):WaitForChild("Fill")
-	
+
+task.spawn(function()
+	local Row1, Spin_Weapon_Frame, Spin_Perk_Frame = plrGui:WaitForChild("GUI"):WaitForChild("Hud"):WaitForChild("Left"):WaitForChild("Row1"), nil, nil
+	local Open_Weapon, Open_Perks = Row1:WaitForChild("Perks"):WaitForChild("Shape"):WaitForChild("Fill"), Row1:WaitForChild("Weapon"):WaitForChild("Shape"):WaitForChild("Fill")
+
 	repeat
 		for i,v in ipairs(plrGui:WaitForChild("GUI"):GetChildren()) do
 			if v:IsA("ImageLabel") and v:FindFirstChild("Description") then
@@ -547,21 +546,36 @@ if plrGui:WaitForChild("GUI") then
 		end
 		wait(1)
 	until Spin_Weapon_Frame == nil and Spin_Perk_Frame == nil
-end
+	
+	task.spawn(function()
+		while true do
+			if Auto_Random_Find_Weapon then
+				if Spin_Weapon_Frame.Visible == false then
+					firesignal(Open_Weapon.MouseButton1Click)
+				end
+				repeat
 
-task.spawn(function()
-	while true do
-		if Auto_Random_Find_Weapon then
-			if Spin_Perk_Frame.Visible == false then
-				firesignal(Open_Perks.MouseButton1Click)
+					wait(1)
+				until Auto_Random_Find_Weapon == false
 			end
-			repeat
-				
-				wait(1)
-			until Auto_Random_Find_Weapon == false
+			wait(1)
 		end
-		wait(1)
-	end
+	end)
+	task.spawn(function()
+		while true do
+			if Auto_Random_Find_Perk then
+				if Spin_Perk_Frame.Visible == false then
+					firesignal(Open_Perks.MouseButton1Click)
+				end
+				repeat
+
+					wait(1)
+				until Auto_Random_Find_Weapon == false
+			end
+			wait(1)
+		end
+	end)
+	
 end)
 
 task.spawn(function()
@@ -580,9 +594,6 @@ task.spawn(function()
 	local De_PlayerSize, Plus_PlayerSize = F_pls:WaitForChild("l"), F_pls:WaitForChild("r")
 	local PlayerSize_TextLabel = F_pls:WaitForChild("Shape"):WaitForChild("Fill"):WaitForChild("TextLabel")
 	
-	--local USERAGREE = plrGui:WaitForChild("useraskGUI"):WaitForChild("USERAGREE")
-	--local Responseframe = USERAGREE:WaitForChild("Frame"):WaitForChild("responseframe")
-
 	local function OtherPlayerNear(TargetPosition, NearValue)
 		local Players, Resut = game:GetService("Players"), true
 		for i,v in ipairs(Players:GetChildren()) do
@@ -1020,9 +1031,6 @@ local elements = {
 	Toggle_AutoOpenTheDoor = Toggle_AutoOpenTheDoor,
 	Toggle_AutoCreateRoom = Toggle_AutoCreateRoom,
 	Slider_Cool_Down_Auto_Create = Slider_Cool_Down_Auto_Create,
-	Dropdown_Choose_Map_Farm = Dropdown_Choose_Map_Farm,
-	Dropdown_Choose_Difficulty_Farm = Dropdown_Choose_Difficulty_Farm,
-	Dropdown_Choose_Mode_Farm = Dropdown_Choose_Mode_Farm,
 	Toggle_AutoUseSkill = Toggle_AutoUseSkill,
 	Toggle_WeaponSkill = Toggle_WeaponSkill,
 	Toggle_PerkSkill = Toggle_PerkSkill,
