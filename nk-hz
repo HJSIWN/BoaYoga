@@ -1,5 +1,5 @@
 
-repeat wait(0.1) until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character 
+repeat wait(0.1) until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character.HumanoidRootPart
 
 if getgenv().SomtankIsRun then return end
 getgenv().SomtankIsRun = true
@@ -17,6 +17,7 @@ UIS = game:GetService("UserInputService")
 GuiService = game:GetService("GuiService")
 
 ----------------------------------------------------
+
 
 if getgenv().Setting then
 	print("[[[[[[[[[[ Found - getgenv().Setting ]]]]]]]]]]")
@@ -45,7 +46,7 @@ end
 player = game.Players.LocalPlayer
 character = player.Character
 humanoid = character:FindFirstChildOfClass("Humanoid")
-HMNRT = character:FindFirstChild("HumanoidRootPart")
+HMNRT = character:WaitForChild("HumanoidRootPart")
 Camera = workspace.CurrentCamera
 screenSize = Camera.ViewportSize
 plrGui = player.PlayerGui
@@ -723,7 +724,9 @@ task.spawn(function()
 					
 					print("*** Map "..Choose_Map_Farm.." Difficulty "..Choose_Difficulty_Farm.." Mode "..Choose_Mode_Farm)
 					wait(0.7)
-					Click_Mode(upmodes_select, Choose_Mode_Farm)
+					if Choose_Mode_Farm ~= "None" then
+						Click_Mode(upmodes_select, Choose_Mode_Farm)
+					end
 					wait(0.7)
 					Click_Mode(maps_select, Choose_Map_Farm)
 					wait(0.7)
@@ -1059,7 +1062,17 @@ for name, value in pairs(configs) do
 		element.Value = value
 	end
 end
+local lastPos, afkTime, afkThreshold = HMNRT.Position, 0, 30
 while ScriptIsRunning do
 	task.wait(1.5)
 	myConfig:Save()
+	if (HMNRT.Position - lastPos).magnitude < 0.1 then
+		afkTime += 1.5
+		if ZombieFarm and afkTime >= afkThreshold then
+			game:GetService("TeleportService"):Teleport(103754275310547, game.Players.LocalPlayer)
+		end
+	else
+		afkTime = 0
+		lastPos = HMNRT.Position
+	end
 end
