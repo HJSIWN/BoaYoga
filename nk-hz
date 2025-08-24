@@ -1,10 +1,6 @@
 
 repeat wait(0.1) until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character 
 
-if getgenv().AutoSaveLoop then
-	getgenv().AutoSaveLoop:Disconnect()
-end
-
 if getgenv().SomtankIsRun then return end
 getgenv().SomtankIsRun = true
 
@@ -145,7 +141,7 @@ end
 local Window = WindUI:CreateWindow({
 	Title = "Somtank",
 	Icon = "rbxassetid://80019916158199",
-	Author = "v0.0.3 | credit. Daytoday2044 | Driver",
+	Author = "v0.0.4 | credit. Daytoday2044 | Driver",
 	Folder = "SOMTANK",
 	Size = UDim2.fromOffset(460, 320),
 	Transparent = true,
@@ -301,12 +297,12 @@ Tabs.Mode1:Slider({
 	Value = {
 		Min = 0,
 		Max = 50,
-		Default = humanoid.JumpHeight,
+		Default = 7.2,
 	},
 	Step = 0.5,
 	Callback = function(value)
 		pcall(function()
-			humanoid.JumpHeight = tonumber(value)
+			humanoid.JumpHeight = value
 		end)
 	end
 })
@@ -753,7 +749,20 @@ task.spawn(function()
 end)
 
 task.spawn(function()
-	local Doors = workspace:WaitForChild("School"):WaitForChild("Doors")
+	
+	repeat
+		wait(1)
+	until game:IsLoaded()
+	
+	local Doors = nil
+	
+	if workspace:FindFirstChild("School") then
+		Doors = workspace:WaitForChild("School"):WaitForChild("Doors")
+	end
+	if workspace:FindFirstChild("Sewers") then
+		Doors = workspace:WaitForChild("Sewers"):WaitForChild("Doors")
+	end
+	
 	while true do
 		if AutoOpenTheDoor then
 			repeat
