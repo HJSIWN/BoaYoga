@@ -11,8 +11,6 @@ getgenv().SomtankIsRun = true
 getgenv().TranslateEnv = "Eng"-- Thai / Eng
 
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
-local queueScript = string.format([[loadstring(game:HttpGet("https://raw.githubusercontent.com/HJSIWN/BoaYoga/refs/heads/main/nk-hz"))()]])
-queue_on_teleport(queueScript)
 
 HttpService = game:GetService("HttpService")
 PathfindingService = game:GetService("PathfindingService")
@@ -23,6 +21,25 @@ replicatedStorage = game:GetService("ReplicatedStorage")
 UIS = game:GetService("UserInputService")
 UIS = game:GetService("UserInputService")
 GuiService = game:GetService("GuiService")
+
+----------------------------------------------------
+
+if getgenv().Setting then
+	print("[[[[[[[[[[ Found - getgenv().Setting ]]]]]]]]]]")
+	for k, v in pairs(getgenv().Setting) do
+		print(k, v)
+	end
+	print("***********************************************")
+	local jsonData = HttpService:JSONEncode(getgenv().Setting)
+	queue_on_teleport([[
+      local HttpService = game:GetService("HttpService")
+      local Setting_Farm = ']] .. jsonData .. [['
+      getgenv().Setting = HttpService:JSONDecode(Setting_Farm)
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/HJSIWN/BoaYoga/refs/heads/main/nk-hz"))()
+    ]])
+end
+
+-----------------------------------------------------
 
 player = game.Players.LocalPlayer
 character = player.Character
@@ -38,12 +55,11 @@ pcall(function()
 	if game:GetService("ReplicatedStorage"):FindFirstChild("Packets"):FindFirstChild("RequestDailyReward") then
 		game:GetService("ReplicatedStorage"):WaitForChild("Packets"):WaitForChild("RequestDailyReward"):InvokeServer()
 		firesignal(plrGui.GUI.DailyRewards.Banner.ExitButton.MouseButton1Click)
-		
-		local codes_Lobby = {"100KLIKES","20KIN","70KLIKES","60KLIKES","sorryfordelay"}
-		local redeem = game:GetService("ReplicatedStorage"):WaitForChild("Packets"):WaitForChild("RedeemCode")
-		for _, code in ipairs(codes_Lobby) do
-			redeem:InvokeServer(code)
-		end
+	end
+	local codes_Lobby = {"100KLIKES","20KIN","70KLIKES","60KLIKES","sorryfordelay"}
+	local redeem = game:GetService("ReplicatedStorage"):WaitForChild("Packets"):WaitForChild("RedeemCode")
+	for _, code in ipairs(codes_Lobby) do
+		redeem:InvokeServer(code)
 	end
 end)
 
@@ -428,31 +444,33 @@ Slider_Cool_Down_Auto_Create = Tabs.Mode2:Slider({
 	end
 })
 
-Choose_Map_Farm = "School"
+Choose_Map_Farm = getgenv().Setting.Map or "School"
 Dropdown_Choose_Map_Farm = Tabs.Mode2:Dropdown({
 	Title = Translate("แมพที่ต้องการฟาร์ม", "Map needs farming"),
 	Values = { "School", "Sewers" },--"Sewers"
-	Value = "School",
+	Value = getgenv().Setting.Map or "School",
 	Callback = function(option) 
 		Choose_Map_Farm = option
 	end
 })
 
-Choose_Difficulty_Farm = "Normal"
+warn("****************** Choose_Map_Farm "..tostring(Dropdown_Choose_Map_Farm))
+
+Choose_Difficulty_Farm = getgenv().Setting.Difficulty or "Normal"
 Dropdown_Choose_Difficulty_Farm = Tabs.Mode2:Dropdown({
 	Title = Translate("ระดับความยากที่ต้องการฟาร์ม", "Difficulty to farm"),
 	Values = { "Normal", "Hard", "Nightmare"},
-	Value = "Normal",
+	Value = getgenv().Setting.Difficulty or "Normal",
 	Callback = function(option) 
 		Choose_Difficulty_Farm = option
 	end
 })
 
-Choose_Mode_Farm = "None"
+Choose_Mode_Farm = getgenv().Setting.Mode or "None"
 Dropdown_Choose_Mode_Farm = Tabs.Mode2:Dropdown({
 	Title = Translate("โหมดที่ต้องการฟาร์ม", "Mode to farm"),
 	Values = {"None","Campaign", "Endless"},
-	Value = "None",
+	Value = getgenv().Setting.Mode or "None",
 	Callback = function(option) 
 		Choose_Mode_Farm = option
 	end
@@ -521,9 +539,13 @@ Toggle_C_Skill = Tabs.Mode2:Toggle({
 --game:GetService("Players").LocalPlayer.PlayerGui.GUI.Hud.Left.Row1.Perks.Shape.Fill
 --game:GetService("Players").LocalPlayer.PlayerGui.GUI.Hud.Left.Row1.Weapon.Shape.Fill
 
-local Row1, Spin_Weapon_Frame, Spin_Perk_Frame = plrGui:WaitForChild("GUI"):WaitForChild("Hud"):WaitForChild("Left"):WaitForChild("Row1"), nil, nil
+local Row1, Spin_Weapon_Frame, Spin_Perk_Frame = nil, nil, nil
+local Open_Weapon, Open_Perks = nil, nil
 
-local Open_Weapon, Open_Perks = Row1:WaitForChild("Perks"):WaitForChild("Shape"):WaitForChild("Fill"), Row1:WaitForChild("Weapon"):WaitForChild("Shape"):WaitForChild("Fill")
+if plrGui:WaitForChild("GUI") then
+	Row1, Spin_Weapon_Frame, Spin_Perk_Frame = plrGui:WaitForChild("GUI"):WaitForChild("Hud"):WaitForChild("Left"):WaitForChild("Row1"), nil, nil
+	Open_Weapon, Open_Perks = Row1:WaitForChild("Perks"):WaitForChild("Shape"):WaitForChild("Fill"), Row1:WaitForChild("Weapon"):WaitForChild("Shape"):WaitForChild("Fill")
+end
 
 repeat
 	for i,v in ipairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
@@ -663,6 +685,7 @@ task.spawn(function()
 			end
 		end
 	end
+	
 	_G.ServerHopper = {hop = serverHop,findBest = findBestServer,getServers = getServerList}
 	
 	for i=1, Cool_Down_Auto_Create do
@@ -684,10 +707,10 @@ task.spawn(function()
 					serverHop(15)
 				end
 				if StartPlaceRedo.Visible == false and Created == false then
-					for i,Part in ipairs(Match:GetChildren()) do
-						if Part:IsA("BasePart") then
-							if Created == false and OtherPlayerNear(Part.Position, 7) then
-								HMNRT.CFrame = CFrame.new(Part.Position)
+					for i,PartTouch in ipairs(Match:GetChildren()) do
+						if PartTouch:IsA("BasePart") and OtherPlayerNear(PartTouch.Position, 7) then
+							if Created == false then
+								HMNRT.CFrame = CFrame.new(PartTouch.Position)
 								wait(0.5)
 								if StartPlaceRedo and StartPlaceRedo.Visible == true then
 									Created = true
@@ -705,9 +728,14 @@ task.spawn(function()
 						firesignal(De_PlayerSize.MouseButton1Click)
 						wait(0.05)
 					end
-					Click_Mode(maps_select, Choose_Map_Farm)
-					Click_Mode(modes_select, Choose_Difficulty_Farm)
+					
+					print("*** Map "..Choose_Map_Farm.." Difficulty "..Choose_Difficulty_Farm.." Mode "..Choose_Mode_Farm)
+					wait(0.7)
 					Click_Mode(upmodes_select, Choose_Mode_Farm)
+					wait(0.7)
+					Click_Mode(maps_select, Choose_Map_Farm)
+					wait(0.7)
+					Click_Mode(modes_select, Choose_Difficulty_Farm)
 					wait(1)
 					firesignal(Start_Button.MouseButton1Click)
 					Created = true
@@ -741,7 +769,7 @@ task.spawn(function()
 				for i,v in ipairs(Doors:GetChildren()) do
 					if v:IsA("Model") and v.PrimaryPart and not v:FindFirstChild("OpennedBySomtank") then
 						HMNRT.CFrame = CFrame.new(v.PrimaryPart.Position)
-						local NewRayValue = Instance.new("RayValue", v)
+						NewRayValue = Instance.new("RayValue", v)
 						NewRayValue.Name = "OpennedBySomtank"
 					end
 					wait(0.1)
@@ -852,13 +880,13 @@ task.spawn(function()
 	if workspace:FindFirstChild("School") then
 		Stage = "Wait_Call_Helicopter"
 		Map = "School"
-		print("***** Set Win Stage on Shcool")
+		warn("***** Set Win Stage on Shcool")
 	end
 	
 	if workspace:FindFirstChild("Sewers") then
 		Map = "Sewers"
 		Stage = "Wait_Start_Generator"
-		print("***** Set Win Stage on Sewers")
+		warn("***** Set Win Stage on Sewers")
 	end
 
 	while true do
