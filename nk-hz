@@ -787,7 +787,7 @@ task.spawn(function()
 end)
 
 task.spawn(function()
-	local Entities, Stage, WantHeli = workspace:WaitForChild("Entities"), "none", 0
+	local Entities, Stage, WantHeli, Map = workspace:WaitForChild("Entities"), "none", 0, "none"
 	local RadioObjective, HeliObjective, generator = nil, nil, nil
 
 	local EndScreen = plrGui:WaitForChild("MainScreen_Sibling"):WaitForChild("EndScreen")
@@ -799,10 +799,12 @@ task.spawn(function()
 	
 	if workspace:FindFirstChild("School") then
 		Stage = "Wait_Call_Helicopter"
+		Map = "School"
 		print("***** Set Win Stage on Shcool")
 	end
 	
 	if workspace:FindFirstChild("Sewers") then
+		Map = "Sewers"
 		Stage = "Wait_Start_Generator"
 		print("***** Set Win Stage on Sewers")
 	end
@@ -826,7 +828,7 @@ task.spawn(function()
 					end
 				end
 				
-				if tonumber(game.PlaceId) == tonumber(86076978383613) then
+				if Map == "Sewers" then
 					if Stage == "Wait_Start_Generator" then
 						if generator == nil then
 							if workspace:FindFirstChild("Sewers") 
@@ -857,10 +859,10 @@ task.spawn(function()
 								HeliObjective = workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("HeliObjective")
 							end
 						else
-							if WantHeli >= 18 then
+							if WantHeli >= 18 or #Entities:GetChildren() <= 0 then
 								HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
 								local Prox = HeliObjective:FindFirstChildOfClass("ProximityPrompt")
-								wait(0.5)
+								wait(0.7)
 								fireproximityprompt(Prox)
 								Stage = "WantWin"
 								for i=1,10 do
@@ -899,7 +901,7 @@ task.spawn(function()
 							noclip()
 						end
 					elseif Stage == "Calling_Helicopter" then
-						if WantHeli >= 18 then
+						if WantHeli >= 18 or #Entities:GetChildren() <= 0 then
 							HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
 							local Prox = HeliObjective:FindFirstChildOfClass("ProximityPrompt")
 							wait(0.5)
