@@ -35,10 +35,11 @@ if getgenv().Setting then
     ]])
 else
 	getgenv().Setting = {
-		Map = "School",-- [ School / Sewers ]
+		Map = "Sewers",-- [ School / Sewers ]
 		Difficulty = "Normal",-- [ Normal / Hard  / Nightmare ]
 		Mode = "None",-- [ None / Campain  / Endless ]
-		Language = "Thai"--[ Thai / English ]
+		Language = "English",--[ Thai / English ]
+		Script_Mode = "Y"--[ Y = Yes / N = No ]
 	}
 end
 
@@ -143,7 +144,7 @@ end
 local Window = WindUI:CreateWindow({
 	Title = "Somtank",
 	Icon = "rbxassetid://80019916158199",
-	Author = "v0.0.4 | credit. Daytoday2044 | Driver",
+	Author = "v0.0.5 | credit. Daytoday2044 / Driver",
 	Folder = "SOMTANK",
 	Size = UDim2.fromOffset(460, 320),
 	Transparent = true,
@@ -527,7 +528,21 @@ Toggle_C_Skill = Tabs.Mode2:Toggle({
 	end
 })
 
-
+if getgenv().Setting and getgenv().Setting.Script_Mode then
+	if getgenv().Setting.Script_Mode == "Y" then
+		ZombieFarm = true
+		AutoColletDropItem = true
+		AutoOpenTheDoor = true
+		AutoCreateRoom = true
+		AutoUseSkill = true
+		WeaponSkill = true
+		PerkSkill = true
+		Z_Skill = true
+		X_Skill = true
+		C_Skill = true
+		ScriptIsRunning = false
+	end
+end
 
 task.spawn(function()
 	local Row1, Spin_Weapon_Frame, Spin_Perk_Frame = plrGui:WaitForChild("GUI"):WaitForChild("Hud"):WaitForChild("Left"):WaitForChild("Row1"), nil, nil
@@ -913,7 +928,7 @@ task.spawn(function()
 									repeat
 										HMNRT.CFrame = CFrame.new(v.HumanoidRootPart.Position) * CFrame.new(0,FarmHeight,0)
 										wait(0.001)
-									until HealthBar_Zombie.Size.X.Scale <= 0 or HealthBar_Zombie == nil or ZombieFarm == false
+									until HealthBar_Zombie.Size.X.Scale <= 0 or HealthBar_Zombie == nil or ZombieFarm == false or v == nil
 								end
 							end
 						end)
@@ -943,21 +958,10 @@ task.spawn(function()
 						end
 					elseif Stage == "Wait_gate_Open" then
 						if WantHeli >= 18 then
-							HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
-							local Prox = HeliObjective:FindFirstChildOfClass("ProximityPrompt")
-							wait(0.7)
-							fireproximityprompt(Prox)
-							Stage = "WantWin"
-							for i=1,10 do
-								HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
-								wait(0.2)
-								fireproximityprompt(Prox)
+							if EndScreen.Visible == true then
+								wait(0.5)
+								firesignal(back_to_lobby_Button.MouseButton1Click)
 							end
-							repeat
-								wait(0.3)
-							until EndScreen.Visible == true
-							wait(0.5)
-							firesignal(back_to_lobby_Button.MouseButton1Click)
 						else
 							WantHeli = WantHeli + 0.5
 						end
