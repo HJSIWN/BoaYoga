@@ -35,6 +35,12 @@ pcall(function()
 	if game:GetService("ReplicatedStorage"):FindFirstChild("Packets"):FindFirstChild("RequestDailyReward") then
 		game:GetService("ReplicatedStorage"):WaitForChild("Packets"):WaitForChild("RequestDailyReward"):InvokeServer()
 		firesignal(plrGui.GUI.DailyRewards.Banner.ExitButton.MouseButton1Click)
+		
+		local codes_Lobby = {"100KLIKES","20KIN","70KLIKES","60KLIKES","sorryfordelay"}
+		local redeem = game:GetService("ReplicatedStorage"):WaitForChild("Packets"):WaitForChild("RedeemCode")
+		for _, code in ipairs(codes_Lobby) do
+			redeem:InvokeServer(code)
+		end
 	end
 end)
 
@@ -64,7 +70,7 @@ local function MakeDraggableButton(button: ImageButton, MoveFrame)
 	end)
 end
 local function MakeImageButton(Parent, Size, Posi, BGtran, Color, Imtran, imageID)
-	local NewFrame, UICorner = Instance.new("ImageButton", Parent)
+	local NewFrame = Instance.new("ImageButton", Parent)
 	local UICorner = Instance.new("UICorner", NewFrame)
 	NewFrame.Position = Posi
 	NewFrame.Size = Size
@@ -115,7 +121,7 @@ end
 local Window = WindUI:CreateWindow({
 	Title = "Somtank",
 	Icon = "rbxassetid://80019916158199",
-	Author = "v0.0.1 | credit. Daytoday2044 | Driver",
+	Author = "v0.0.2 | credit. Daytoday2044 | Driver",
 	Folder = "SOMTANK",
 	Size = UDim2.fromOffset(460, 320),
 	Transparent = true,
@@ -352,7 +358,7 @@ Slider_Cool_Down_Auto_Create = Tabs.Mode2:Slider({
 Choose_Map_Farm = "School"
 Dropdown_Choose_Map_Farm = Tabs.Mode2:Dropdown({
 	Title = Translate("แมพที่ต้องการฟาร์ม", "Map needs farming"),
-	Values = { "School", "School" },--"Sewers"
+	Values = { "School", "Sewers" },--"Sewers"
 	Value = "School",
 	Callback = function(option) 
 		Choose_Map_Farm = option
@@ -552,13 +558,12 @@ task.spawn(function()
 	
 	for i=1, Cool_Down_Auto_Create do
 		wait(1)
-		if USERAGREE.Visible == true then
+		print("Cool_Down_Auto_Create "..Cool_Down_Auto_Create .." / "..i)
+		if USERAGREE and USERAGREE.Visible == true then
 			if AutoRejoin then
 				Click_Mode(Responseframe, "YES")
-				Cool_Down_Auto_Create = Cool_Down_Auto_Create + 30
 			else
 				Click_Mode(Responseframe, "NO")
-				Cool_Down_Auto_Create = Cool_Down_Auto_Create + 30
 			end
 		end
 	end
@@ -581,9 +586,9 @@ task.spawn(function()
 							end
 						end
 					end
-					HMNRT.CFrame = CFrame.new(SpawnCFrame)
+					HMNRT.CFrame = SpawnCFrame * CFrame.new(0,5,0)
 					TimeReTry = TimeReTry + 1
-					print("******* TimeReTry "..TimeReTry)
+					--print("******* TimeReTry "..TimeReTry)
 					task.wait(5)
 				end
 				if StartPlaceRedo and StartPlaceRedo.Visible == true then
@@ -918,7 +923,6 @@ for name, value in pairs(configs) do
 	end
 end
 while ScriptIsRunning do
-	task.wait(1)
-	print("myConfig:Save()")
+	task.wait(1.5)
 	myConfig:Save()
 end
