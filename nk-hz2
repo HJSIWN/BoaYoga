@@ -1,5 +1,6 @@
 
-repeat wait(0.1) until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character 
+repeat wait(0.1) until game:IsLoaded()
+repeat wait(0.1) until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
 
 if getgenv().SomtankIsRun then return end
 getgenv().SomtankIsRun = true
@@ -46,7 +47,7 @@ end
 player = game.Players.LocalPlayer
 character = player.Character
 humanoid = character:FindFirstChildOfClass("Humanoid")
-HMNRT = character:FindFirstChild("HumanoidRootPart")
+HMNRT = character:WaitForChild("HumanoidRootPart")
 Camera = workspace.CurrentCamera
 screenSize = Camera.ViewportSize
 plrGui = player.PlayerGui
@@ -597,7 +598,7 @@ task.spawn(function()
 		local Players, Resut = game:GetService("Players"), true
 		for i,v in ipairs(Players:GetChildren()) do
 			if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-				local Dis = (HMNRT.Position - TargetPosition).Magnitude
+				local Dis = (v.Character:FindFirstChild("HumanoidRootPart").Position - TargetPosition).Magnitude
 				if Dis < NearValue then
 					Resut = false
 				end
@@ -1070,6 +1071,7 @@ while ScriptIsRunning do
 		afkTime += 1.5
 		if ZombieFarm and afkTime >= afkThreshold then
 			game:GetService("TeleportService"):Teleport(103754275310547, game.Players.LocalPlayer)
+			wait(10)
 		end
 	else
 		afkTime = 0
