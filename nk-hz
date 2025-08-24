@@ -8,8 +8,6 @@ end
 if getgenv().SomtankIsRun then return end
 getgenv().SomtankIsRun = true
 
-getgenv().TranslateEnv = "Eng"-- Thai / Eng
-
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
 HttpService = game:GetService("HttpService")
@@ -27,7 +25,7 @@ GuiService = game:GetService("GuiService")
 if getgenv().Setting then
 	print("[[[[[[[[[[ Found - getgenv().Setting ]]]]]]]]]]")
 	for k, v in pairs(getgenv().Setting) do
-		print(k, v)
+		print("************* "..k, v)
 	end
 	print("***********************************************")
 	local jsonData = HttpService:JSONEncode(getgenv().Setting)
@@ -127,10 +125,10 @@ end
 
 local function Translate(ThaiLang, EngLang)
 	local Resut = ThaiLang
-	if getgenv().TranslateEnv then
-		if getgenv().TranslateEnv == "Thai" then
+	if getgenv().Setting and getgenv().Setting.Language then
+		if getgenv().Setting.Language == "Thai" then
 			Resut = ThaiLang
-		elseif getgenv().TranslateEnv == "Eng" then
+		elseif getgenv().Setting.Language == "English" then
 			Resut = EngLang
 		end
 	end
@@ -454,8 +452,6 @@ Dropdown_Choose_Map_Farm = Tabs.Mode2:Dropdown({
 	end
 })
 
-warn("****************** Choose_Map_Farm "..tostring(Dropdown_Choose_Map_Farm))
-
 Choose_Difficulty_Farm = getgenv().Setting.Difficulty or "Normal"
 Dropdown_Choose_Difficulty_Farm = Tabs.Mode2:Dropdown({
 	Title = Translate("ระดับความยากที่ต้องการฟาร์ม", "Difficulty to farm"),
@@ -535,31 +531,27 @@ Toggle_C_Skill = Tabs.Mode2:Toggle({
 	end
 })
 
-
---game:GetService("Players").LocalPlayer.PlayerGui.GUI.Hud.Left.Row1.Perks.Shape.Fill
---game:GetService("Players").LocalPlayer.PlayerGui.GUI.Hud.Left.Row1.Weapon.Shape.Fill
-
 local Row1, Spin_Weapon_Frame, Spin_Perk_Frame = nil, nil, nil
 local Open_Weapon, Open_Perks = nil, nil
 
 if plrGui:WaitForChild("GUI") then
 	Row1, Spin_Weapon_Frame, Spin_Perk_Frame = plrGui:WaitForChild("GUI"):WaitForChild("Hud"):WaitForChild("Left"):WaitForChild("Row1"), nil, nil
 	Open_Weapon, Open_Perks = Row1:WaitForChild("Perks"):WaitForChild("Shape"):WaitForChild("Fill"), Row1:WaitForChild("Weapon"):WaitForChild("Shape"):WaitForChild("Fill")
-end
-
-repeat
-	for i,v in ipairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
-		if v:IsA("ImageLabel") and v:FindFirstChild("Description") then
-			Description = v:FindFirstChild("Description")
-			if Description.Text == "Once rocked the stage now it rocks zombie faces. Loud, heavy, and deadly." then
-				Spin_Weapon_Frame = v
-			elseif Description.Text == "Increases your movement speed and lets you heal slightly with each hit. Zombies hit will continue losing a bit of health for a short time." then
-				Spin_Perk_Frame = v
+	
+	repeat
+		for i,v in ipairs(plrGui:WaitForChild("GUI"):GetChildren()) do
+			if v:IsA("ImageLabel") and v:FindFirstChild("Description") then
+				Description = v:FindFirstChild("Description")
+				if Description.Text == "Once rocked the stage now it rocks zombie faces. Loud, heavy, and deadly." then
+					Spin_Weapon_Frame = v
+				elseif Description.Text == "Increases your movement speed and lets you heal slightly with each hit. Zombies hit will continue losing a bit of health for a short time." then
+					Spin_Perk_Frame = v
+				end
 			end
 		end
-	end
-	wait(1)
-until Spin_Weapon_Frame == nil and Spin_Perk_Frame == nil
+		wait(1)
+	until Spin_Weapon_Frame == nil and Spin_Perk_Frame == nil
+end
 
 task.spawn(function()
 	while true do
@@ -720,7 +712,6 @@ task.spawn(function()
 					end
 					HMNRT.CFrame = SpawnCFrame * CFrame.new(0,5,0)
 					TimeReTry = TimeReTry + 1
-					--print("******* TimeReTry "..TimeReTry)
 					task.wait(5)
 				end
 				if StartPlaceRedo and StartPlaceRedo.Visible == true then
