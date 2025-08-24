@@ -124,7 +124,7 @@ end
 local Window = WindUI:CreateWindow({
 	Title = "Somtank",
 	Icon = "rbxassetid://80019916158199",
-	Author = "v0.0.2 | credit. Daytoday2044 | Driver",
+	Author = "v0.0.3 | credit. Daytoday2044 | Driver",
 	Folder = "SOMTANK",
 	Size = UDim2.fromOffset(460, 320),
 	Transparent = true,
@@ -296,6 +296,22 @@ Tabs.Mode1:Toggle({
 	Value = false,
 	Callback = function(state)
 		AutoKill = state
+	end
+})
+
+Fps_Value = 60
+Slider_Fps_Value = Tabs.Mode1:Slider({
+	Title = Translate("เซ็ทค่า fps", "Set Fps"),
+	Value = {
+		Min = 0,
+		Max = 120,
+		Default = 60,
+	},
+	Callback = function(value)
+		pcall(function()
+			Fps_Value = tonumber(value)
+			setfpscap(Fps_Value)
+		end)
 	end
 })
 
@@ -502,6 +518,42 @@ Toggle_C_Skill = Tabs.Mode2:Toggle({
 })
 
 
+--game:GetService("Players").LocalPlayer.PlayerGui.GUI.Hud.Left.Row1.Perks.Shape.Fill
+--game:GetService("Players").LocalPlayer.PlayerGui.GUI.Hud.Left.Row1.Weapon.Shape.Fill
+
+local Row1, Spin_Weapon_Frame, Spin_Perk_Frame = plrGui:WaitForChild("GUI"):WaitForChild("Hud"):WaitForChild("Left"):WaitForChild("Row1"), nil, nil
+
+local Open_Weapon, Open_Perks = Row1:WaitForChild("Perks"):WaitForChild("Shape"):WaitForChild("Fill"), Row1:WaitForChild("Weapon"):WaitForChild("Shape"):WaitForChild("Fill")
+
+repeat
+	for i,v in ipairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
+		if v:IsA("ImageLabel") and v:FindFirstChild("Description") then
+			Description = v:FindFirstChild("Description")
+			if Description.Text == "Once rocked the stage now it rocks zombie faces. Loud, heavy, and deadly." then
+				Spin_Weapon_Frame = v
+			elseif Description.Text == "Increases your movement speed and lets you heal slightly with each hit. Zombies hit will continue losing a bit of health for a short time." then
+				Spin_Perk_Frame = v
+			end
+		end
+	end
+	wait(1)
+until Spin_Weapon_Frame == nil and Spin_Perk_Frame == nil
+
+task.spawn(function()
+	while true do
+		if Auto_Random_Find_Weapon then
+			if Spin_Perk_Frame.Visible == false then
+				firesignal(Open_Perks.MouseButton1Click)
+			end
+			repeat
+				
+				wait(1)
+			until Auto_Random_Find_Weapon == false
+		end
+		wait(1)
+	end
+end)
+
 task.spawn(function()
 	
 	repeat
@@ -656,7 +708,7 @@ task.spawn(function()
 					Click_Mode(maps_select, Choose_Map_Farm)
 					Click_Mode(modes_select, Choose_Difficulty_Farm)
 					Click_Mode(upmodes_select, Choose_Mode_Farm)
-					wait(0.2)
+					wait(1)
 					firesignal(Start_Button.MouseButton1Click)
 					Created = true
 				end
@@ -725,7 +777,7 @@ task.spawn(function()
 					local Dis = (HMNRT.Position - v.HumanoidRootPart.Position).Magnitude
 					if Dis < NearValue then
 						NearZombie = v
-						NearValue = Dis
+						NearValue = math.floor(Dis)
 					end
 				end
 			end)
@@ -755,7 +807,7 @@ task.spawn(function()
 		if AutoUseSkill then
 			repeat
 				local NearZombie, NearValue = ScanNearZombie()
-				print("Return Back NearValue : "..NearValue)
+				--print("Return Back NearValue : "..NearValue)
 				if NearValue < 15 then
 					Check_And_UseSkill()
 				end
@@ -787,7 +839,7 @@ task.spawn(function()
 end)
 
 task.spawn(function()
-	local Entities, Stage, WantHeli, Map = workspace:WaitForChild("Entities"), "none", 0, "none"
+	local Entities, Stage, WantHeli, Map = workspace:WaitForChild("Entities"), "none", 0, "School"
 	local RadioObjective, HeliObjective, generator = nil, nil, nil
 
 	local EndScreen = plrGui:WaitForChild("MainScreen_Sibling"):WaitForChild("EndScreen")
@@ -859,7 +911,7 @@ task.spawn(function()
 								HeliObjective = workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("HeliObjective")
 							end
 						else
-							if WantHeli >= 18 or #Entities:GetChildren() <= 0 then
+							if WantHeli >= 18 then
 								HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
 								local Prox = HeliObjective:FindFirstChildOfClass("ProximityPrompt")
 								wait(0.7)
@@ -880,7 +932,7 @@ task.spawn(function()
 							end
 						end
 					end
-				else
+				elseif Map == "School" then
 					if Stage == "Wait_Call_Helicopter" then
 						if RadioObjective == nil then
 							if workspace:FindFirstChild("School") 
@@ -901,7 +953,7 @@ task.spawn(function()
 							noclip()
 						end
 					elseif Stage == "Calling_Helicopter" then
-						if WantHeli >= 18 or #Entities:GetChildren() <= 0 then
+						if WantHeli >= 18 then
 							HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
 							local Prox = HeliObjective:FindFirstChildOfClass("ProximityPrompt")
 							wait(0.5)
@@ -972,6 +1024,7 @@ local elements = {
 	Toggle_AutoRejoin = Toggle_AutoRejoin,
 	Dropdown_Choose_Target_Weapon = Dropdown_Choose_Target_Weapon,
 	Dropdown_Choose_Target_Perk = Dropdown_Choose_Target_Perk,
+	Slider_Fps_Value = Slider_Fps_Value,
 }
 for name, element in pairs(elements) do
 	myConfig:Register(name, element)
