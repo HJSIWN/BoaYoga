@@ -1,5 +1,6 @@
 
-repeat wait(0.1) until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character.HumanoidRootPart
+repeat wait(0.1) until game:IsLoaded()
+repeat wait(0.1) until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
 
 if getgenv().SomtankIsRun then return end
 getgenv().SomtankIsRun = true
@@ -142,7 +143,7 @@ end
 local Window = WindUI:CreateWindow({
 	Title = "Somtank",
 	Icon = "rbxassetid://80019916158199",
-	Author = "v0.0.4 | credit. Daytoday2044 | Driver",
+	Author = "v0.0.5 | credit. Daytoday2044 / Driver",
 	Folder = "SOMTANK",
 	Size = UDim2.fromOffset(460, 320),
 	Transparent = true,
@@ -597,7 +598,7 @@ task.spawn(function()
 		local Players, Resut = game:GetService("Players"), true
 		for i,v in ipairs(Players:GetChildren()) do
 			if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-				local Dis = (HMNRT.Position - TargetPosition).Magnitude
+				local Dis = (v.Character:FindFirstChild("HumanoidRootPart").Position - TargetPosition).Magnitude
 				if Dis < NearValue then
 					Resut = false
 				end
@@ -912,7 +913,7 @@ task.spawn(function()
 									repeat
 										HMNRT.CFrame = CFrame.new(v.HumanoidRootPart.Position) * CFrame.new(0,FarmHeight,0)
 										wait(0.001)
-									until HealthBar_Zombie.Size.X.Scale <= 0 or HealthBar_Zombie == nil or ZombieFarm == false
+									until HealthBar_Zombie.Size.X.Scale <= 0 or HealthBar_Zombie == nil or ZombieFarm == false or v == nil
 								end
 							end
 						end)
@@ -942,21 +943,10 @@ task.spawn(function()
 						end
 					elseif Stage == "Wait_gate_Open" then
 						if WantHeli >= 18 then
-							HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
-							local Prox = HeliObjective:FindFirstChildOfClass("ProximityPrompt")
-							wait(0.7)
-							fireproximityprompt(Prox)
-							Stage = "WantWin"
-							for i=1,10 do
-								HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
-								wait(0.2)
-								fireproximityprompt(Prox)
+							if EndScreen.Visible == true then
+								wait(0.5)
+								firesignal(back_to_lobby_Button.MouseButton1Click)
 							end
-							repeat
-								wait(0.3)
-							until EndScreen.Visible == true
-							wait(0.5)
-							firesignal(back_to_lobby_Button.MouseButton1Click)
 						else
 							WantHeli = WantHeli + 0.5
 						end
@@ -1070,6 +1060,7 @@ while ScriptIsRunning do
 		afkTime += 1.5
 		if ZombieFarm and afkTime >= afkThreshold then
 			game:GetService("TeleportService"):Teleport(103754275310547, game.Players.LocalPlayer)
+			wait(10)
 		end
 	else
 		afkTime = 0
