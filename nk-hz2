@@ -1,10 +1,6 @@
 
 repeat wait(0.1) until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character 
 
-if getgenv().AutoSaveLoop then
-	getgenv().AutoSaveLoop:Disconnect()
-end
-
 if getgenv().SomtankIsRun then return end
 getgenv().SomtankIsRun = true
 
@@ -33,7 +29,7 @@ if getgenv().Setting then
       local HttpService = game:GetService("HttpService")
       local Setting_Farm = ']] .. jsonData .. [['
       getgenv().Setting = HttpService:JSONDecode(Setting_Farm)
-      loadstring(game:HttpGet("https://raw.githubusercontent.com/HJSIWN/BoaYoga/refs/heads/main/nk-hz"))()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/HJSIWN/BoaYoga/refs/heads/main/nk-hz2"))()
     ]])
 else
 	getgenv().Setting = {
@@ -145,7 +141,7 @@ end
 local Window = WindUI:CreateWindow({
 	Title = "Somtank",
 	Icon = "rbxassetid://80019916158199",
-	Author = "v0.0.3 | credit. Daytoday2044 | Driver",
+	Author = "v0.0.4 | credit. Daytoday2044 | Driver",
 	Folder = "SOMTANK",
 	Size = UDim2.fromOffset(460, 320),
 	Transparent = true,
@@ -282,34 +278,36 @@ Section = Tabs.Mode1:Section({
 })
 Section:SetTitle(Translate("ตั้งค่าผู้เล่น", "Player Setting"))
 
-Tabs.Mode1:Slider({
-	Title = Translate("ความเร็วการเดิน", "WalkSpeed"),
-	Value = {
-		Min = 0,
-		Max = 300,
-		Default = 16,
-	},
-	Callback = function(value)
-		pcall(function()
-			humanoid.WalkSpeed = tonumber(value)
-		end)
-	end
-})
+pcall(function()
+	Tabs.Mode1:Slider({
+		Title = Translate("ความเร็วการเดิน", "WalkSpeed"),
+		Value = {
+			Min = 0,
+			Max = 300,
+			Default = 16,
+		},
+		Callback = function(value)
+			pcall(function()
+				humanoid.WalkSpeed = tonumber(value)
+			end)
+		end
+	})
 
-Tabs.Mode1:Slider({
-	Title = Translate("พลังการกระโดด", "Jump Power"),
-	Value = {
-		Min = 0,
-		Max = 50,
-		Default = humanoid.JumpHeight,
-	},
-	Step = 0.5,
-	Callback = function(value)
-		pcall(function()
-			humanoid.JumpHeight = tonumber(value)
-		end)
-	end
-})
+	Tabs.Mode1:Slider({
+		Title = Translate("พลังการกระโดด", "Jump Power"),
+		Value = {
+			Min = 0,
+			Max = 50,
+			Default = 7.2,
+		},
+		Step = 0.5,
+		Callback = function(value)
+			pcall(function()
+				humanoid.JumpHeight = value
+			end)
+		end
+	})
+end)
 
 AutoKill = false
 Tabs.Mode1:Toggle({
