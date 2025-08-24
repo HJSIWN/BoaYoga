@@ -13,9 +13,8 @@ TweenService = game:GetService("TweenService")
 RunService = game:GetService("RunService")
 Lighting = game:GetService("Lighting")
 replicatedStorage = game:GetService("ReplicatedStorage")
+CoreGui = game:GetService("CoreGui")
 UIS = game:GetService("UserInputService")
-UIS = game:GetService("UserInputService")
-GuiService = game:GetService("GuiService")
 
 ----------------------------------------------------
 
@@ -31,7 +30,7 @@ if getgenv().Setting then
       local HttpService = game:GetService("HttpService")
       local Setting_Farm = ']] .. jsonData .. [['
       getgenv().Setting = HttpService:JSONDecode(Setting_Farm)
-      loadstring(game:HttpGet("https://raw.githubusercontent.com/HJSIWN/BoaYoga/refs/heads/main/nk-hz2"))()
+      --loadstring(game:HttpGet("https://raw.githubusercontent.com/HJSIWN/BoaYoga/refs/heads/main/nk-hz2"))()
     ]])
 else
 	getgenv().Setting = {
@@ -39,7 +38,7 @@ else
 		Difficulty = "Normal",-- [ Normal / Hard  / Nightmare ]
 		Mode = "None",-- [ None / Campain  / Endless ]
 		Language = "English",--[ Thai / English ]
-		Script_Mode = "Y"--[ Y = Yes / N = No ]
+		Farm_Mode = "Kai_tan"--[ Kai_tan = Farm ] U can delete ;)
 	}
 end
 
@@ -53,7 +52,7 @@ Camera = workspace.CurrentCamera
 screenSize = Camera.ViewportSize
 plrGui = player.PlayerGui
 
-ScreenGui, Icon_Position, ScriptIsRunning  = Instance.new("ScreenGui", game:GetService("CoreGui")), nil, true
+ScreenGui, Icon_Position, ScriptIsRunning, LoadConfig = Instance.new("ScreenGui", CoreGui), nil, true, true
 
 pcall(function()
 	if game:GetService("ReplicatedStorage"):FindFirstChild("Packets"):FindFirstChild("RequestDailyReward") then
@@ -178,13 +177,13 @@ do
 		Title = "กลุ่ม 1",
 		Opened = true,
 	})
-	
+
 	Tabs.Mode1 = Tabs.Player:Tab({ Title = Translate("ผู้เล่น", "Player"), Icon = "rbxassetid://2795572800" })
 
 	Tabs.Mode2 = Tabs.Player:Tab({ Title = Translate("ฟาร์ม", "Farm"), Icon = "rbxassetid://9008236330" })
 
 	Tabs.Mode3 = Tabs.Player:Tab({ Title = Translate("สุ่ม", "Spin"), Icon = "rbxassetid://438217404" })
-	
+
 end
 
 Window:SelectTab(1)
@@ -361,6 +360,38 @@ Section = Tabs.Mode2:Section({
 })
 Section:SetTitle(Translate("⚙️ ตั้งค่าการฟาร์ม", "⚙️ Farm Setting"))
 
+BlackScreen, ShowText = false, nil 
+Tabs.Mode2:Toggle({
+	Title = Translate("จอดำ", "Black Screen"),
+	Value = false,
+	Callback = function(state)
+		BlackScreen = state
+		if BlackScreen == false then
+			ShowText = nil
+			if plrGui:FindFirstChild("SomtankBlackSgreen") then
+				plrGui:FindFirstChild("SomtankBlackSgreen"):Destroy()
+			end
+		else
+			if not plrGui:FindFirstChild("SomtankBlackSgreen") then
+				NewScreenGui = Instance.new("ScreenGui", plrGui)
+				NewCanvas = Instance.new("CanvasGroup", NewScreenGui)
+				NewTextLabel = Instance.new("TextLabel", plrGui)
+				NewCanvas.Position = UDim2.new(0, 0, -0.2, 0)
+				NewCanvas.Size = UDim2.new(2, 0, 2, 0)
+				NewCanvas.BackgroundColor3 = Color3.new(0, 0, 0)
+				NewTextLabel.Position = UDim2.new(0, 0, 0, 0)
+				NewTextLabel.Size = UDim2.new(1, 0, 1, 0)
+				NewTextLabel.BackgroundTransparency = 1
+				NewTextLabel.TextColor3 = Color3.new(1, 1, 1)
+				NewTextLabel.TextScaled = true
+				NewTextLabel.ZIndex = 9
+				NewScreenGui.Name = "SomtankBlackSgreen"
+				ShowText = NewTextLabel
+			end
+		end
+	end
+})
+
 ZombieFarm = false
 Toggle_ZombieFarm = Tabs.Mode2:Toggle({
 	Title = Translate("ฟาร์มซอมบี้", "Farm Zombie"),
@@ -376,13 +407,13 @@ Toggle_ZombieFarm = Tabs.Mode2:Toggle({
 	end
 })
 
-FarmHeight = 4
+FarmHeight = 5
 Slider_FarmHeight = Tabs.Mode2:Slider({
 	Title = Translate("ระยะความสูงในการฟาร์ม", "Height range on Zombies"),
 	Value = {
 		Min = 0,
 		Max = 10,
-		Default = 4,
+		Default = 5,
 	},
 	Callback = function(value)
 		FarmHeight = tonumber(value)
@@ -439,31 +470,31 @@ Slider_Cool_Down_Auto_Create = Tabs.Mode2:Slider({
 	end
 })
 
-Choose_Map_Farm = getgenv().Setting.Map
+Choose_Map_Farm = tostring(getgenv().Setting.Map)
 Tabs.Mode2:Dropdown({
 	Title = Translate("แมพที่ต้องการฟาร์ม", "Map needs farming"),
 	Values = { "School", "Sewers" },--"Sewers"
-	Value = "School",
+	Value = Choose_Map_Farm,
 	Callback = function(option) 
 		Choose_Map_Farm = option
 	end
 })
 
-Choose_Difficulty_Farm = getgenv().Setting.Difficulty
+Choose_Difficulty_Farm = tostring(getgenv().Setting.Difficulty)
 Tabs.Mode2:Dropdown({
 	Title = Translate("ระดับความยากที่ต้องการฟาร์ม", "Difficulty to farm"),
 	Values = { "Normal", "Hard", "Nightmare"},
-	Value = "Normal",
+	Value = Choose_Difficulty_Farm,
 	Callback = function(option) 
 		Choose_Difficulty_Farm = option
 	end
 })
 
-Choose_Mode_Farm = getgenv().Setting.Mode
+Choose_Mode_Farm = tostring(getgenv().Setting.Mode)
 Tabs.Mode2:Dropdown({
 	Title = Translate("โหมดที่ต้องการฟาร์ม", "Mode to farm"),
 	Values = {"None","Campaign", "Endless"},
-	Value = "None",
+	Value = Choose_Mode_Farm,
 	Callback = function(option) 
 		Choose_Mode_Farm = option
 	end
@@ -528,21 +559,50 @@ Toggle_C_Skill = Tabs.Mode2:Toggle({
 	end
 })
 
-if getgenv().Setting and getgenv().Setting.Script_Mode then
-	if getgenv().Setting.Script_Mode == "Y" then
-		ZombieFarm = true
-		AutoColletDropItem = true
-		AutoOpenTheDoor = true
-		AutoCreateRoom = true
-		AutoUseSkill = true
-		WeaponSkill = true
-		PerkSkill = true
-		Z_Skill = true
-		X_Skill = true
-		C_Skill = true
-		ScriptIsRunning = false
+task.spawn(function()
+	if getgenv().Setting and getgenv().Setting.Farm_Mode then
+		if getgenv().Setting.Farm_Mode == "Kai_tan" then
+			pcall(function()
+
+				ZombieFarm = true
+				AutoColletDropItem = true
+				AutoOpenTheDoor = true
+				AutoCreateRoom = true
+				AutoUseSkill = true
+				WeaponSkill = true
+				PerkSkill = true
+				Z_Skill = true
+				X_Skill = true
+				C_Skill = true
+				ScriptIsRunning = false
+				BlackScreen = true
+				
+				Window:Close()
+
+				if not plrGui:FindFirstChild("SomtankBlackSgreen") then
+					NewScreenGui = Instance.new("ScreenGui", plrGui)
+					NewCanvas = Instance.new("CanvasGroup", NewScreenGui)
+					NewTextLabel = Instance.new("TextLabel", plrGui)
+					NewCanvas.Position = UDim2.new(0, 0, -0.2, 0)
+					NewCanvas.Size = UDim2.new(2, 0, 2, 0)
+					NewCanvas.BackgroundColor3 = Color3.new(0, 0, 0)
+					NewTextLabel.Position = UDim2.new(0, 0, 0, 0)
+					NewTextLabel.Size = UDim2.new(1, 0, 1, 0)
+					NewTextLabel.BackgroundTransparency = 1
+					NewTextLabel.TextColor3 = Color3.new(1, 1, 1)
+					NewTextLabel.TextScaled = true
+					NewTextLabel.ZIndex = 9
+					NewScreenGui.Name = "SomtankBlackSgreen"
+					ShowText = NewTextLabel
+				end
+
+			end)
+		end
 	end
-end
+end)
+
+
+----------------------------- Loop Script ----------------------------
 
 task.spawn(function()
 	local Row1, Spin_Weapon_Frame, Spin_Perk_Frame = plrGui:WaitForChild("GUI"):WaitForChild("Hud"):WaitForChild("Left"):WaitForChild("Row1"), nil, nil
@@ -561,7 +621,7 @@ task.spawn(function()
 		end
 		wait(1)
 	until Spin_Weapon_Frame == nil and Spin_Perk_Frame == nil
-	
+
 	task.spawn(function()
 		while true do
 			if Auto_Random_Find_Weapon then
@@ -590,11 +650,11 @@ task.spawn(function()
 			wait(1)
 		end
 	end)
-	
+
 end)
 
 task.spawn(function()
-	
+
 	repeat
 		wait(1)
 	until game:IsLoaded()
@@ -608,7 +668,7 @@ task.spawn(function()
 	local F_pls = iContent:WaitForChild("options"):WaitForChild("playerselect"):WaitForChild("F")
 	local De_PlayerSize, Plus_PlayerSize = F_pls:WaitForChild("l"), F_pls:WaitForChild("r")
 	local PlayerSize_TextLabel = F_pls:WaitForChild("Shape"):WaitForChild("Fill"):WaitForChild("TextLabel")
-	
+
 	local function OtherPlayerNear(TargetPosition, NearValue)
 		local Players, Resut = game:GetService("Players"), true
 		for i,v in ipairs(Players:GetChildren()) do
@@ -699,14 +759,14 @@ task.spawn(function()
 			end
 		end
 	end
-	
+
 	_G.ServerHopper = {hop = serverHop,findBest = findBestServer,getServers = getServerList}
-	
+
 	for i=1, Cool_Down_Auto_Create do
 		wait(1)
 		print("Cool_Down_Auto_Create "..Cool_Down_Auto_Create .." / "..i)
 	end
-	
+
 	while true do
 		if AutoCreateRoom then
 			print("AutoCreateRoom is Reapeat")
@@ -737,7 +797,7 @@ task.spawn(function()
 						firesignal(De_PlayerSize.MouseButton1Click)
 						wait(0.05)
 					end
-					
+
 					print("*** Map "..Choose_Map_Farm.." Difficulty "..Choose_Difficulty_Farm.." Mode "..Choose_Mode_Farm)
 					wait(0.7)
 					if Choose_Mode_Farm ~= "None" then
@@ -772,24 +832,24 @@ task.spawn(function()
 end)
 
 task.spawn(function()
-	
+
 	repeat
 		wait(1)
 	until game:IsLoaded()
-	
+
 	local Doors = nil
-	
+
 	if workspace:FindFirstChild("School") then
 		Doors = workspace:WaitForChild("School"):WaitForChild("Doors")
 	end
 	if workspace:FindFirstChild("Sewers") then
 		Doors = workspace:WaitForChild("Sewers"):WaitForChild("Doors")
 	end
-	
+
 	while true do
 		if AutoOpenTheDoor and Doors then
 			repeat
-				Camera.CameraType = Enum.CameraType.Watch
+				Camera.CameraType = Enum.CameraType.Scriptable
 				for i,v in ipairs(Doors:GetChildren()) do
 					if v:IsA("Model") and v.PrimaryPart and not v:FindFirstChild("OpennedBySomtank") then
 						pcall(function()
@@ -801,7 +861,7 @@ task.spawn(function()
 					wait(0.1)
 				end
 				Camera.CameraType = Enum.CameraType.Custom
-				wait(1)
+				wait(3)
 			until AutoOpenTheDoor == false
 		end
 		wait(1)
@@ -899,17 +959,17 @@ task.spawn(function()
 
 	local EndScreen = plrGui:WaitForChild("MainScreen_Sibling"):WaitForChild("EndScreen")
 	local back_to_lobby_Button = EndScreen:WaitForChild("List"):WaitForChild("back")
-	
+
 	repeat
 		wait(1)
 	until game:IsLoaded()
-	
+
 	if workspace:FindFirstChild("School") then
 		Stage = "Wait_Call_Helicopter"
 		Map = "School"
 		warn("***** Set Win Stage on Shcool")
 	end
-	
+
 	if workspace:FindFirstChild("Sewers") then
 		Map = "Sewers"
 		Stage = "Wait_Start_Generator"
@@ -929,12 +989,12 @@ task.spawn(function()
 										HMNRT.CFrame = CFrame.new(v.HumanoidRootPart.Position) * CFrame.new(0,FarmHeight,0)
 										wait(0.001)
 									until HealthBar_Zombie.Size.X.Scale <= 0 or HealthBar_Zombie == nil or ZombieFarm == false or v == nil
+
 								end
 							end
 						end)
 					end
 				end
-				
 				if Map == "Sewers" then
 					if Stage == "Wait_Start_Generator" then
 						if generator == nil then
@@ -1068,17 +1128,26 @@ for name, value in pairs(configs) do
 	end
 end
 local lastPos, afkTime, afkThreshold = HMNRT.Position, 0, 30
-while ScriptIsRunning do
-	task.wait(1.5)
-	myConfig:Save()
-	if (HMNRT.Position - lastPos).magnitude < 0.1 then
-		afkTime += 1.5
-		if ZombieFarm and afkTime >= afkThreshold then
-			game:GetService("TeleportService"):Teleport(103754275310547, game.Players.LocalPlayer)
-			wait(10)
+while true do
+	pcall(function()
+		task.wait(2)
+		player = game.Players.LocalPlayer
+		character = player.Character
+		humanoid = character:FindFirstChildOfClass("Humanoid")
+		HMNRT = character:WaitForChild("HumanoidRootPart")
+		plrGui = player.PlayerGui
+		if (HMNRT.Position - lastPos).magnitude < 0.1 then
+			afkTime += 1.5
+			if ZombieFarm and afkTime >= afkThreshold then
+				game:GetService("TeleportService"):Teleport(103754275310547, game.Players.LocalPlayer)
+				wait(10)
+			end
+		else
+			afkTime = 0
+			lastPos = HMNRT.Position
 		end
-	else
-		afkTime = 0
-		lastPos = HMNRT.Position
-	end
+		if ScriptIsRunning then
+			myConfig:Save()
+		end
+	end)
 end
