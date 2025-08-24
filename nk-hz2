@@ -18,6 +18,7 @@ GuiService = game:GetService("GuiService")
 
 ----------------------------------------------------
 
+
 if getgenv().Setting then
 	print("[[[[[[[[[[ Found - getgenv().Setting ]]]]]]]]]]")
 	for k, v in pairs(getgenv().Setting) do
@@ -701,11 +702,13 @@ task.spawn(function()
 					for i,PartTouch in ipairs(Match:GetChildren()) do
 						if PartTouch:IsA("BasePart") and OtherPlayerNear(PartTouch.Position, 7) then
 							if Created == false then
-								HMNRT.CFrame = CFrame.new(PartTouch.Position)
-								wait(0.5)
-								if StartPlaceRedo and StartPlaceRedo.Visible == true then
-									Created = true
-								end
+								pcall(function()
+									HMNRT.CFrame = CFrame.new(PartTouch.Position)
+									wait(0.5)
+									if StartPlaceRedo and StartPlaceRedo.Visible == true then
+										Created = true
+									end
+								end)
 							end
 						end
 					end
@@ -721,7 +724,9 @@ task.spawn(function()
 					
 					print("*** Map "..Choose_Map_Farm.." Difficulty "..Choose_Difficulty_Farm.." Mode "..Choose_Mode_Farm)
 					wait(0.7)
-					Click_Mode(upmodes_select, Choose_Mode_Farm)
+					if Choose_Mode_Farm ~= "None" then
+						Click_Mode(upmodes_select, Choose_Mode_Farm)
+					end
 					wait(0.7)
 					Click_Mode(maps_select, Choose_Map_Farm)
 					wait(0.7)
@@ -766,14 +771,16 @@ task.spawn(function()
 	end
 	
 	while true do
-		if AutoOpenTheDoor then
+		if AutoOpenTheDoor and Doors then
 			repeat
 				Camera.CameraType = Enum.CameraType.Watch
 				for i,v in ipairs(Doors:GetChildren()) do
 					if v:IsA("Model") and v.PrimaryPart and not v:FindFirstChild("OpennedBySomtank") then
-						HMNRT.CFrame = CFrame.new(v.PrimaryPart.Position)
-						NewRayValue = Instance.new("RayValue", v)
-						NewRayValue.Name = "OpennedBySomtank"
+						pcall(function()
+							HMNRT.CFrame = CFrame.new(v.PrimaryPart.Position)
+							NewRayValue = Instance.new("RayValue", v)
+							NewRayValue.Name = "OpennedBySomtank"
+						end)
 					end
 					wait(0.1)
 				end
@@ -856,7 +863,9 @@ task.spawn(function()
 				Camera.CameraType = Enum.CameraType.Scriptable
 				for i,v in ipairs(DropItems:GetChildren()) do
 					if v:IsA("BasePart") then
-						HMNRT.CFrame = CFrame.new(v.Position) * CFrame.new(0,1.5,0)
+						pcall(function()
+							HMNRT.CFrame = CFrame.new(v.Position) * CFrame.new(0,1.5,0)
+						end)						
 					end
 					wait()
 				end
@@ -932,34 +941,24 @@ task.spawn(function()
 							noclip()
 						end
 					elseif Stage == "Wait_gate_Open" then
-						if HeliObjective == nil then
-							if workspace:FindFirstChild("School") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("HeliObjective") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("HeliObjective"):FindFirstChildOfClass("ProximityPrompt") then
-								HeliObjective = workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("HeliObjective")
-							end
-						else
-							if WantHeli >= 18 then
+						if WantHeli >= 18 then
+							HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
+							local Prox = HeliObjective:FindFirstChildOfClass("ProximityPrompt")
+							wait(0.7)
+							fireproximityprompt(Prox)
+							Stage = "WantWin"
+							for i=1,10 do
 								HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
-								local Prox = HeliObjective:FindFirstChildOfClass("ProximityPrompt")
-								wait(0.7)
+								wait(0.2)
 								fireproximityprompt(Prox)
-								Stage = "WantWin"
-								for i=1,10 do
-									HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
-									wait(0.2)
-									fireproximityprompt(Prox)
-								end
-								repeat
-									wait(0.3)
-								until EndScreen.Visible == true
-								wait(0.5)
-								firesignal(back_to_lobby_Button.MouseButton1Click)
-							else
-								WantHeli = WantHeli + 0.5
 							end
+							repeat
+								wait(0.3)
+							until EndScreen.Visible == true
+							wait(0.5)
+							firesignal(back_to_lobby_Button.MouseButton1Click)
+						else
+							WantHeli = WantHeli + 0.5
 						end
 					end
 				elseif Map == "School" then
@@ -1063,7 +1062,17 @@ for name, value in pairs(configs) do
 		element.Value = value
 	end
 end
+local lastPos, afkTime, afkThreshold = HMNRT.Position, 0, 30
 while ScriptIsRunning do
 	task.wait(1.5)
 	myConfig:Save()
+	if (HMNRT.Position - lastPos).magnitude < 0.1 then
+		afkTime += 1.5
+		if ZombieFarm and afkTime >= afkThreshold then
+			game:GetService("TeleportService"):Teleport(103754275310547, game.Players.LocalPlayer)
+		end
+	else
+		afkTime = 0
+		lastPos = HMNRT.Position
+	end
 end
