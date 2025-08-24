@@ -278,34 +278,36 @@ Section = Tabs.Mode1:Section({
 })
 Section:SetTitle(Translate("ตั้งค่าผู้เล่น", "Player Setting"))
 
-Tabs.Mode1:Slider({
-	Title = Translate("ความเร็วการเดิน", "WalkSpeed"),
-	Value = {
-		Min = 0,
-		Max = 300,
-		Default = 16,
-	},
-	Callback = function(value)
-		pcall(function()
-			humanoid.WalkSpeed = tonumber(value)
-		end)
-	end
-})
+pcall(function()
+	Tabs.Mode1:Slider({
+		Title = Translate("ความเร็วการเดิน", "WalkSpeed"),
+		Value = {
+			Min = 0,
+			Max = 300,
+			Default = 16,
+		},
+		Callback = function(value)
+			pcall(function()
+				humanoid.WalkSpeed = tonumber(value)
+			end)
+		end
+	})
 
-Tabs.Mode1:Slider({
-	Title = Translate("พลังการกระโดด", "Jump Power"),
-	Value = {
-		Min = 0,
-		Max = 50,
-		Default = 7.2,
-	},
-	Step = 0.5,
-	Callback = function(value)
-		pcall(function()
-			humanoid.JumpHeight = value
-		end)
-	end
-})
+	Tabs.Mode1:Slider({
+		Title = Translate("พลังการกระโดด", "Jump Power"),
+		Value = {
+			Min = 0,
+			Max = 50,
+			Default = 7.2,
+		},
+		Step = 0.5,
+		Callback = function(value)
+			pcall(function()
+				humanoid.JumpHeight = value
+			end)
+		end
+	})
+end)
 
 AutoKill = false
 Tabs.Mode1:Toggle({
@@ -699,11 +701,13 @@ task.spawn(function()
 					for i,PartTouch in ipairs(Match:GetChildren()) do
 						if PartTouch:IsA("BasePart") and OtherPlayerNear(PartTouch.Position, 7) then
 							if Created == false then
-								HMNRT.CFrame = CFrame.new(PartTouch.Position)
-								wait(0.5)
-								if StartPlaceRedo and StartPlaceRedo.Visible == true then
-									Created = true
-								end
+								pcall(function()
+									HMNRT.CFrame = CFrame.new(PartTouch.Position)
+									wait(0.5)
+									if StartPlaceRedo and StartPlaceRedo.Visible == true then
+										Created = true
+									end
+								end)
 							end
 						end
 					end
@@ -764,14 +768,16 @@ task.spawn(function()
 	end
 	
 	while true do
-		if AutoOpenTheDoor then
+		if AutoOpenTheDoor and Doors then
 			repeat
 				Camera.CameraType = Enum.CameraType.Watch
 				for i,v in ipairs(Doors:GetChildren()) do
 					if v:IsA("Model") and v.PrimaryPart and not v:FindFirstChild("OpennedBySomtank") then
-						HMNRT.CFrame = CFrame.new(v.PrimaryPart.Position)
-						NewRayValue = Instance.new("RayValue", v)
-						NewRayValue.Name = "OpennedBySomtank"
+						pcall(function()
+							HMNRT.CFrame = CFrame.new(v.PrimaryPart.Position)
+							NewRayValue = Instance.new("RayValue", v)
+							NewRayValue.Name = "OpennedBySomtank"
+						end)
 					end
 					wait(0.1)
 				end
@@ -854,7 +860,9 @@ task.spawn(function()
 				Camera.CameraType = Enum.CameraType.Scriptable
 				for i,v in ipairs(DropItems:GetChildren()) do
 					if v:IsA("BasePart") then
-						HMNRT.CFrame = CFrame.new(v.Position) * CFrame.new(0,1.5,0)
+						pcall(function()
+							HMNRT.CFrame = CFrame.new(v.Position) * CFrame.new(0,1.5,0)
+						end)						
 					end
 					wait()
 				end
@@ -930,34 +938,24 @@ task.spawn(function()
 							noclip()
 						end
 					elseif Stage == "Wait_gate_Open" then
-						if HeliObjective == nil then
-							if workspace:FindFirstChild("School") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("HeliObjective") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("HeliObjective"):FindFirstChildOfClass("ProximityPrompt") then
-								HeliObjective = workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("HeliObjective")
-							end
-						else
-							if WantHeli >= 18 then
+						if WantHeli >= 18 then
+							HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
+							local Prox = HeliObjective:FindFirstChildOfClass("ProximityPrompt")
+							wait(0.7)
+							fireproximityprompt(Prox)
+							Stage = "WantWin"
+							for i=1,10 do
 								HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
-								local Prox = HeliObjective:FindFirstChildOfClass("ProximityPrompt")
-								wait(0.7)
+								wait(0.2)
 								fireproximityprompt(Prox)
-								Stage = "WantWin"
-								for i=1,10 do
-									HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
-									wait(0.2)
-									fireproximityprompt(Prox)
-								end
-								repeat
-									wait(0.3)
-								until EndScreen.Visible == true
-								wait(0.5)
-								firesignal(back_to_lobby_Button.MouseButton1Click)
-							else
-								WantHeli = WantHeli + 0.5
 							end
+							repeat
+								wait(0.3)
+							until EndScreen.Visible == true
+							wait(0.5)
+							firesignal(back_to_lobby_Button.MouseButton1Click)
+						else
+							WantHeli = WantHeli + 0.5
 						end
 					end
 				elseif Map == "School" then
