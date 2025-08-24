@@ -8,8 +8,8 @@ end
 getgenv().TranslateEnv = "Thai"
 
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
-local queueScript = string.format([[loadstring(game:HttpGet("https://raw.githubusercontent.com/MQPS7/NoPlan/refs/heads/main/HuntyZombies"))()]])
---queue_on_teleport(queueScript)
+local queueScript = string.format([[loadstring(game:HttpGet("https://raw.githubusercontent.com/HJSIWN/BoaYoga/refs/heads/main/nk-hz"))()]])
+queue_on_teleport(queueScript)
 
 HttpService = game:GetService("HttpService")
 PathfindingService = game:GetService("PathfindingService")
