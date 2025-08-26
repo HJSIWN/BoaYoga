@@ -1365,7 +1365,7 @@ task.spawn(function()-- Zombies Farm
 		wait(1)
 	until game:IsLoaded()
 		
-	local Entities, Stage, WantHeli, Map, XPosition = workspace:WaitForChild("Entities"), "none", 0, "School", -5
+	local Entities, Stage, WantHeli, Map, StuckZombies = workspace:WaitForChild("Entities"), "none", 0, "School", 0
 	local RadioObjective, HeliObjective, generator = nil, nil, nil
 
 	local EndScreen = plrGui:WaitForChild("MainScreen_Sibling"):WaitForChild("EndScreen")
@@ -1393,10 +1393,16 @@ task.spawn(function()-- Zombies Farm
 							if ZombieFarm and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") then
 								local HealthBar_Zombie = v:FindFirstChild("Head"):FindFirstChild("EntityHealth"):FindFirstChild("HealthBar"):FindFirstChild("Bar")
 								if HealthBar_Zombie and HealthBar_Zombie.Size.X.Scale > 0 then
+									StuckZombies = 0
 									repeat
 										HMNRT.CFrame = CFrame.new(v.HumanoidRootPart.Position) * CFrame.new(0,FarmHeight,0)
 										wait(0.001)
-									until HealthBar_Zombie.Size.X.Scale <= 0 or HealthBar_Zombie == nil or ZombieFarm == false or v == nil
+										if StuckZombies > 100 then
+											humanoid.Health = 0
+										else
+											StuckZombies = StuckZombies + 0.001
+										end
+									until HealthBar_Zombie.Size.X.Scale <= 0 or HealthBar_Zombie == nil or ZombieFarm == false or v == nil or StuckZombies > 100
 								end
 							end
 						end
@@ -1453,14 +1459,18 @@ task.spawn(function()-- Zombies Farm
 					end
 				elseif Map == "School" then
 					if Stage == "Wait_Call_Helicopter" then
+						--workspace.School.Rooms.RooftopBoss.RadioObjective.ProximityPrompt
 						if RadioObjective == nil then
-							if workspace:FindFirstChild("School") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("RadioObjective") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("RadioObjective"):FindFirstChildOfClass("ProximityPrompt") then
-								RadioObjective = workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("RadioObjective")
-							end
+							repeat
+								for _,v in ipairs(workspace:GetDescendants()) do
+									if v:IsA("BasePart") and v.Name == "HeliObjective" then
+										HeliObjective = v
+									elseif v:IsA("BasePart") and v.Name == "RadioObjective" then
+										RadioObjective = v
+									end
+								end
+								wait(0.5)
+							until RadioObjective ~= nil and HeliObjective ~= nil
 						else
 							for i=1,10 do
 								print(function()
@@ -1473,6 +1483,7 @@ task.spawn(function()-- Zombies Farm
 							Stage = "Calling_Helicopter"
 						end
 					elseif Stage == "Calling_Helicopter" then
+						--workspace.School.Rooms.RooftopBoss.HeliObjective.ProximityPrompt
 						if WantHeli >= 17.5 then
 							for i=1,10 do
 								print(function()
@@ -1705,6 +1716,25 @@ while true do
 		if StuckTime >= 1080 then
 			game:GetService("TeleportService"):Teleport(103754275310547, game.Players.LocalPlayer)
 			wait(10)
+		end
+		if tonumber(game.PlaceId) == tonumber(103754275310547) then
+			pcall(function()
+				EndScreen = plrGui:FindFirstChild("MainScreen_Sibling"):FindFirstChild("EndScreen")
+				if EndScreen.Visible == true and Send_Webhook_IfEnd == true then
+					if getgenv().SendWebHook then return end
+					getgenv().SendWebHook = true
+					Stats_ = EndScreen:WaitForChild("List"):WaitForChild("stats")
+					Coin = Stats_:WaitForChild("cashearned"):WaitForChild("v")
+					Exp = Stats_:WaitForChild("expearned"):WaitForChild("v")
+					PlayTime = Stats_:WaitForChild("playtime"):WaitForChild("v")
+					Failure = EndScreen:WaitForChild("List"):WaitForChild("Title"):WaitForChild("Failure")
+					if Failure.Enabled == true then
+						sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, false)
+					else
+						sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, true)
+					end
+				end
+			end)
 		end
 		task.wait(2)
 		if (HMNRT.Position - lastPos).magnitude < 0.6 then
