@@ -3,7 +3,7 @@ repeat wait(1) until game:IsLoaded()
 repeat wait(1) until game.Players.LocalPlayer and game.Players.LocalPlayer.Character
 
 if getgenv().SomtankIsRun then return end
-getgenv().SomtankIsRun = false
+getgenv().SomtankIsRun = true
 
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
@@ -927,7 +927,7 @@ task.spawn(function()
 	if getgenv().Setting and getgenv().Setting.Farm_Mode then
 		if getgenv().Setting.Farm_Mode == "Kai_tan" then
 			pcall(function()
-				print("Hello")
+				print("SetKaitanMode")
 
 				ZombieFarm = true
 				AutoColletDropItem = true
@@ -968,7 +968,9 @@ task.spawn(function()
 				Lighting.GlobalShadows = false
 				Lighting.FogEnd = 9999
 				Lighting.FogStart = 9999
+				
 				settings().Rendering.QualityLevel = 1
+				
 				for i,v in pairs(game:GetDescendants()) do
 					if v:IsA("BasePart") then
 						v.Material = "Plastic"
@@ -1481,7 +1483,7 @@ task.spawn(function()-- Zombies Farm
 						end
 					end)
 				end
-				print("Stage "..Stage.." Map "..Map)
+				
 				if Map == "Sewers" then
 					if Stage == "Wait_Start_Generator" then
 						if generator == nil then
@@ -1494,37 +1496,41 @@ task.spawn(function()-- Zombies Farm
 								generator = workspace:FindFirstChild("Sewers"):FindFirstChild("Rooms"):FindFirstChild("BossRoom"):FindFirstChild("generator"):FindFirstChild("gen")
 							end
 						else
-							local Prox = generator:FindFirstChildOfClass("ProximityPrompt")
+							Prox = generator:FindFirstChildOfClass("ProximityPrompt")
 							for i=1,10 do
-								print(function()
-									HMNRT.CFrame = CFrame.new(generator.Position) * CFrame.new(0,3,0)
-								end)
-								wait(0.1)
+								HMNRT.CFrame = CFrame.new(generator.Position) * CFrame.new(0,3,0)
+								wait(0.5)
+								fireproximityprompt(Prox)
 							end
-							wait(0.5)
-							fireproximityprompt(Prox)
 							wait(0.5)
 							Stage = "Wait_gate_Open"
 						end
 					elseif Stage == "Wait_gate_Open" then
-						if EndScreen.Visible == true then
-							wait(2)
-							EndScreen = plrGui:WaitForChild("MainScreen_Sibling"):WaitForChild("EndScreen")
-							if EndScreen.Visible == true and Send_Webhook_IfEnd == true then
-								Stats_ = EndScreen:WaitForChild("List"):WaitForChild("stats")
-								Coin = Stats_:WaitForChild("cashearned"):WaitForChild("v")
-								Exp = Stats_:WaitForChild("expearned"):WaitForChild("v")
-								PlayTime = Stats_:WaitForChild("playtime"):WaitForChild("v")
-								Failure = EndScreen:WaitForChild("List"):WaitForChild("Title"):WaitForChild("Failure")
-								wait(3)
-								if Failure.Enabled == true then
-									sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, false)
-								else
-									sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, true)
+						if #Entities:GetChildren() < 3 then
+							repeat
+								wait(0.3)
+							until EndScreen.Visible == true
+							if EndScreen.Visible == true then
+								wait(2)
+								if EndScreen.Visible == true and Send_Webhook_IfEnd == true then
+									if getgenv().SendWebHook then return end
+									getgenv().SendWebHook = true
+									pcall(function()
+										Stats_ = EndScreen:WaitForChild("List"):WaitForChild("stats")
+										Coin = Stats_:WaitForChild("cashearned"):WaitForChild("v")
+										Exp = Stats_:WaitForChild("expearned"):WaitForChild("v")
+										PlayTime = Stats_:WaitForChild("playtime"):WaitForChild("v")
+										Failure = EndScreen:WaitForChild("List"):WaitForChild("Title"):WaitForChild("Failure")
+										if Failure.Enabled == true then
+											sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, false)
+										else
+											sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, true)
+										end
+									end)
 								end
+								wait(2)
+								firesignal(back_to_lobby_Button.MouseButton1Click)
 							end
-							wait(2)
-							firesignal(back_to_lobby_Button.MouseButton1Click)
 						end
 					end
 				elseif Map == "School" then
@@ -1538,7 +1544,7 @@ task.spawn(function()-- Zombies Farm
 								RadioObjective = workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("RadioObjective")
 							end
 						else
-							local Prox = RadioObjective:FindFirstChildOfClass("ProximityPrompt")
+							Prox = RadioObjective:FindFirstChildOfClass("ProximityPrompt")
 							HMNRT.CFrame = CFrame.new(RadioObjective.Position) * CFrame.new(0,3,0)
 							wait(0.5)
 							fireproximityprompt(Prox)
@@ -1566,20 +1572,18 @@ task.spawn(function()-- Zombies Farm
 								wait(0.3)
 							until EndScreen.Visible == true
 							wait(2)
-							print(function()
-								EndScreen = plrGui:WaitForChild("MainScreen_Sibling"):WaitForChild("EndScreen")
-								if EndScreen.Visible == true and Send_Webhook_IfEnd == true then
-									Stats_ = EndScreen:WaitForChild("List"):WaitForChild("stats")
-									Coin = Stats_:WaitForChild("cashearned"):WaitForChild("v")
-									Exp = Stats_:WaitForChild("expearned"):WaitForChild("v")
-									PlayTime = Stats_:WaitForChild("playtime"):WaitForChild("v")
-									Failure = EndScreen:WaitForChild("List"):WaitForChild("Title"):WaitForChild("Failure")
-									wait(3)
-									if Failure.Enabled == true then
-										sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, false)
-									else
-										sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, true)
-									end
+							pcall(function()
+								if getgenv().SendWebHook then return end
+								getgenv().SendWebHook = true
+								Stats_ = EndScreen:WaitForChild("List"):WaitForChild("stats")
+								Coin = Stats_:WaitForChild("cashearned"):WaitForChild("v")
+								Exp = Stats_:WaitForChild("expearned"):WaitForChild("v")
+								PlayTime = Stats_:WaitForChild("playtime"):WaitForChild("v")
+								Failure = EndScreen:WaitForChild("List"):WaitForChild("Title"):WaitForChild("Failure")
+								if Failure.Enabled == true then
+									sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, false)
+								else
+									sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, true)
 								end
 							end)
 							wait(2)
