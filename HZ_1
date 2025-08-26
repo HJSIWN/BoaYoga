@@ -177,14 +177,17 @@ end
 avatarUrl = getAvatarUrl(player.UserId) or "https://www.roblox.com/favicon.ico"
 local function sendWebhook(cash, exp, playtime, Win)
 	pcall(function()
+		Stage_OnEnd = Translate("ชนะ", "Win")
 		Color_Embed = tonumber(16730495)
 		if Win == true then
 			Color_Embed = tonumber(6390015)
+			Stage_OnEnd = Translate("ชนะ", "Win")
 		else
 			Color_Embed = tonumber(16730495)
+			Stage_OnEnd = Translate("ล้มเหลว", "Fail")
 		end
 		local embed = {
-			["title"] = "📊 Player Update",
+			["title"] = Translate("📊 ผู้เล่น ", "📊 Player ")..Stage_OnEnd,
 			["description"] = 
 				"**Player:** `" .. player.Name .. "`\n" ..
 				"**Cash:** `" .. cash .. "`\n" ..
@@ -923,92 +926,6 @@ Toggle_C_Skill = Tabs.Mode2:Toggle({
 	end
 })
 
-task.spawn(function()
-	if getgenv().Setting and getgenv().Setting.Farm_Mode then
-		if getgenv().Setting.Farm_Mode == "Kai_tan" then
-			pcall(function()
-				print("SetKaitanMode")
-
-				ZombieFarm = true
-				AutoColletDropItem = true
-				AutoOpenTheDoor = true
-				AutoCreateRoom = true
-				AutoUseSkill = true
-				WeaponSkill = true
-				PerkSkill = true
-				Z_Skill = true
-				X_Skill = true
-				C_Skill = true
-				ScriptIsRunning = false
-				BlackScreen = true
-				
-				InitNoEffect()
-				setfpscap(15)
-				
-				if not plrGui:FindFirstChild("SomtankBlackSgreen") then
-					NewScreenGui = Instance.new("ScreenGui", plrGui)
-					NewCanvas = Instance.new("CanvasGroup", NewScreenGui)
-					NewTextLabel = Instance.new("TextLabel", NewScreenGui)
-					NewCanvas.Position = UDim2.new(0, 0, -0.2, 0)
-					NewCanvas.Size = UDim2.new(2, 0, 2, 0)
-					NewCanvas.BackgroundColor3 = Color3.new(0, 0, 0)
-					NewTextLabel.Position = UDim2.new(0, 0, 0, 0)
-					NewTextLabel.Size = UDim2.new(1, 0, 1, 0)
-					NewTextLabel.BackgroundTransparency = 1
-					NewTextLabel.TextColor3 = Color3.new(1, 1, 1)
-					NewTextLabel.TextScaled = true
-					NewTextLabel.ZIndex = 9
-					NewTextLabel.Text = "Hello World"
-					NewScreenGui.Name = "SomtankBlackSgreen"
-					ShowText = NewTextLabel
-				end
-
-				Window:Close()
-				
-				Lighting.GlobalShadows = false
-				Lighting.FogEnd = 9999
-				Lighting.FogStart = 9999
-				
-				settings().Rendering.QualityLevel = 1
-				
-				for i,v in pairs(game:GetDescendants()) do
-					if v:IsA("BasePart") then
-						v.Material = "Plastic"
-						v.Reflectance = 0
-						v.BackSurface = "SmoothNoOutlines"
-						v.BottomSurface = "SmoothNoOutlines"
-						v.FrontSurface = "SmoothNoOutlines"
-						v.LeftSurface = "SmoothNoOutlines"
-						v.RightSurface = "SmoothNoOutlines"
-						v.TopSurface = "SmoothNoOutlines"
-					elseif v:IsA("Decal") then
-						v.Transparency = 1
-					elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-						v.Lifetime = NumberRange.new(0)
-					end
-					wait()
-				end
-				for i,v in pairs(Lighting:GetDescendants()) do
-					if v:IsA("PostEffect") then
-						v.Enabled = false
-					end
-					wait()
-				end
-				workspace.DescendantAdded:Connect(function(child)
-					task.spawn(function()
-						if child:IsA('ForceField') or child:IsA('Sparkles') or child:IsA('Smoke') or child:IsA('Fire') or child:IsA('Beam') then
-							RunService.Heartbeat:Wait()
-							child:Destroy()
-						end
-					end)
-				end)
-				
-			end)
-		end
-	end
-end)
-
-
 ----------------------------- Loop Script ----------------------------
 
 local function GetConnettion_Click(Button)
@@ -1443,15 +1360,17 @@ task.spawn(function()-- Auto Collet Item
 end)
 
 task.spawn(function()-- Zombies Farm
+		
 	repeat
 		wait(1)
 	until game:IsLoaded()
-	
-	local Entities, Stage, WantHeli, Map, XPosition = workspace:WaitForChild("Entities"), "none", 0, "School", -5
+		
+	local Entities, Stage, WantHeli, Map, StuckZombies = workspace:WaitForChild("Entities"), "none", 0, "School", 0
 	local RadioObjective, HeliObjective, generator = nil, nil, nil
 
 	local EndScreen = plrGui:WaitForChild("MainScreen_Sibling"):WaitForChild("EndScreen")
 	local back_to_lobby_Button = EndScreen:WaitForChild("List"):WaitForChild("back")
+	
 
 	if workspace:FindFirstChild("School") then
 		Stage = "Wait_Call_Helicopter"
@@ -1474,10 +1393,16 @@ task.spawn(function()-- Zombies Farm
 							if ZombieFarm and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Head") then
 								local HealthBar_Zombie = v:FindFirstChild("Head"):FindFirstChild("EntityHealth"):FindFirstChild("HealthBar"):FindFirstChild("Bar")
 								if HealthBar_Zombie and HealthBar_Zombie.Size.X.Scale > 0 then
+									StuckZombies = 0
 									repeat
 										HMNRT.CFrame = CFrame.new(v.HumanoidRootPart.Position) * CFrame.new(0,FarmHeight,0)
 										wait(0.001)
-									until HealthBar_Zombie.Size.X.Scale <= 0 or HealthBar_Zombie == nil or ZombieFarm == false or v == nil
+										if StuckZombies > 100 then
+											humanoid.Health = 0
+										else
+											StuckZombies = StuckZombies + 0.001
+										end
+									until HealthBar_Zombie.Size.X.Scale <= 0 or HealthBar_Zombie == nil or ZombieFarm == false or v == nil or StuckZombies > 100
 								end
 							end
 						end
@@ -1496,17 +1421,16 @@ task.spawn(function()-- Zombies Farm
 								generator = workspace:FindFirstChild("Sewers"):FindFirstChild("Rooms"):FindFirstChild("BossRoom"):FindFirstChild("generator"):FindFirstChild("gen")
 							end
 						else
-							Prox = generator:FindFirstChildOfClass("ProximityPrompt")
 							for i=1,10 do
 								HMNRT.CFrame = CFrame.new(generator.Position) * CFrame.new(0,3,0)
 								wait(0.5)
-								fireproximityprompt(Prox)
+								fireproximityprompt(generator:FindFirstChildOfClass("ProximityPrompt"))
 							end
 							wait(0.5)
 							Stage = "Wait_gate_Open"
 						end
 					elseif Stage == "Wait_gate_Open" then
-						if #Entities:GetChildren() < 3 then
+						if #Entities:GetChildren() < 1 then
 							repeat
 								wait(0.3)
 							until EndScreen.Visible == true
@@ -1535,38 +1459,42 @@ task.spawn(function()-- Zombies Farm
 					end
 				elseif Map == "School" then
 					if Stage == "Wait_Call_Helicopter" then
+						--workspace.School.Rooms.RooftopBoss.RadioObjective.ProximityPrompt
 						if RadioObjective == nil then
 							if workspace:FindFirstChild("School") 
 								and workspace:FindFirstChild("School"):FindFirstChild("Rooms") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("RadioObjective") 
-								and workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("RadioObjective"):FindFirstChildOfClass("ProximityPrompt") then
-								RadioObjective = workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("RadioObjective")
+								and workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss") then
+								RooftopBoss = workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss")
+								repeat
+									for _,v in ipairs(RooftopBoss:GetDescendants()) do
+										if v:IsA("BasePart") and v.Name == "HeliObjective" then
+											HeliObjective = v
+										elseif v:IsA("BasePart") and v.Name == "RadioObjective" then
+											RadioObjective = v
+										end
+									end
+								until RadioObjective ~= nil and HeliObjective ~= nil
 							end
 						else
-							Prox = RadioObjective:FindFirstChildOfClass("ProximityPrompt")
-							HMNRT.CFrame = CFrame.new(RadioObjective.Position) * CFrame.new(0,3,0)
-							wait(0.5)
-							fireproximityprompt(Prox)
+							for i=1,10 do
+								print(function()
+									HMNRT.CFrame = CFrame.new(RadioObjective.Position) * CFrame.new(0,3,0)
+									wait(0.5)
+									fireproximityprompt(RadioObjective:FindFirstChildOfClass("ProximityPrompt"))
+								end)
+							end
 							wait(0.5)
 							Stage = "Calling_Helicopter"
 						end
 					elseif Stage == "Calling_Helicopter" then
-						if WantHeli >= 18 then
+						--workspace.School.Rooms.RooftopBoss.HeliObjective.ProximityPrompt
+						if WantHeli >= 17.5 then
 							for i=1,10 do
 								print(function()
 									HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
+									wait(0.5)
+									fireproximityprompt(HeliObjective:FindFirstChildOfClass("ProximityPrompt"))
 								end)
-								wait(0.1)
-							end
-							local Prox = HeliObjective:FindFirstChildOfClass("ProximityPrompt")
-							wait(0.5)
-							fireproximityprompt(Prox)
-							Stage = "WantWin"
-							for i=1,10 do
-								HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
-								wait(0.2)
-								fireproximityprompt(Prox)
 							end
 							repeat
 								wait(0.3)
@@ -1609,7 +1537,7 @@ task.spawn(function()-- Auto Kill
 		if ZombieFarm or AutoKill then
 			repeat
 				ByteNetReliable:FireServer(buffer.fromstring("\a\004\001"),{1755879640.252399 + math.random()})
-				wait(tonumber("0."..math.random(2, 6)))
+				wait(tonumber("0."..math.random(3, 6)))
 			until ZombieFarm == false and AutoKill == false
 		end
 		wait(1)
@@ -1660,6 +1588,91 @@ for name, value in pairs(configs) do
 	end
 end
 
+task.spawn(function()
+	if getgenv().Setting and getgenv().Setting.Farm_Mode then
+		if getgenv().Setting.Farm_Mode == "Kai_tan" then
+			pcall(function()
+				print("SetKaitanMode")
+
+				ZombieFarm = true
+				AutoColletDropItem = true
+				AutoOpenTheDoor = true
+				AutoCreateRoom = true
+				AutoUseSkill = true
+				WeaponSkill = true
+				PerkSkill = true
+				Z_Skill = true
+				X_Skill = true
+				C_Skill = true
+				ScriptIsRunning = false
+				BlackScreen = true
+
+				InitNoEffect()
+				setfpscap(15)
+
+				if not plrGui:FindFirstChild("SomtankBlackSgreen") then
+					NewScreenGui = Instance.new("ScreenGui", plrGui)
+					NewCanvas = Instance.new("CanvasGroup", NewScreenGui)
+					NewTextLabel = Instance.new("TextLabel", NewScreenGui)
+					NewCanvas.Position = UDim2.new(0, 0, -0.2, 0)
+					NewCanvas.Size = UDim2.new(2, 0, 2, 0)
+					NewCanvas.BackgroundColor3 = Color3.new(0, 0, 0)
+					NewTextLabel.Position = UDim2.new(0, 0, 0, 0)
+					NewTextLabel.Size = UDim2.new(1, 0, 1, 0)
+					NewTextLabel.BackgroundTransparency = 1
+					NewTextLabel.TextColor3 = Color3.new(1, 1, 1)
+					NewTextLabel.TextScaled = true
+					NewTextLabel.ZIndex = 9
+					NewTextLabel.Text = "Hello World"
+					NewScreenGui.Name = "SomtankBlackSgreen"
+					ShowText = NewTextLabel
+				end
+
+				Window:Close()
+
+				Lighting.GlobalShadows = false
+				Lighting.FogEnd = 9999
+				Lighting.FogStart = 9999
+
+				settings().Rendering.QualityLevel = 1
+
+				for i,v in pairs(game:GetDescendants()) do
+					if v:IsA("BasePart") then
+						v.Material = "Plastic"
+						v.Reflectance = 0
+						v.BackSurface = "SmoothNoOutlines"
+						v.BottomSurface = "SmoothNoOutlines"
+						v.FrontSurface = "SmoothNoOutlines"
+						v.LeftSurface = "SmoothNoOutlines"
+						v.RightSurface = "SmoothNoOutlines"
+						v.TopSurface = "SmoothNoOutlines"
+					elseif v:IsA("Decal") then
+						v.Transparency = 1
+					elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+						v.Lifetime = NumberRange.new(0)
+					end
+					wait()
+				end
+				for i,v in pairs(Lighting:GetDescendants()) do
+					if v:IsA("PostEffect") then
+						v.Enabled = false
+					end
+					wait()
+				end
+				workspace.DescendantAdded:Connect(function(child)
+					task.spawn(function()
+						if child:IsA('ForceField') or child:IsA('Sparkles') or child:IsA('Smoke') or child:IsA('Fire') or child:IsA('Beam') then
+							RunService.Heartbeat:Wait()
+							child:Destroy()
+						end
+					end)
+				end)
+
+			end)
+		end
+	end
+end)
+
 if not getgenv().Setting then
 	getgenv().Setting = {
 		Map = Choose_Map_Farm or "School",
@@ -1708,8 +1721,27 @@ while true do
 			game:GetService("TeleportService"):Teleport(103754275310547, game.Players.LocalPlayer)
 			wait(10)
 		end
+		if tonumber(game.PlaceId) == tonumber(103754275310547) then
+			pcall(function()
+				EndScreen = plrGui:FindFirstChild("MainScreen_Sibling"):FindFirstChild("EndScreen")
+				if EndScreen.Visible == true and Send_Webhook_IfEnd == true then
+					if getgenv().SendWebHook then return end
+					getgenv().SendWebHook = true
+					Stats_ = EndScreen:WaitForChild("List"):WaitForChild("stats")
+					Coin = Stats_:WaitForChild("cashearned"):WaitForChild("v")
+					Exp = Stats_:WaitForChild("expearned"):WaitForChild("v")
+					PlayTime = Stats_:WaitForChild("playtime"):WaitForChild("v")
+					Failure = EndScreen:WaitForChild("List"):WaitForChild("Title"):WaitForChild("Failure")
+					if Failure.Enabled == true then
+						sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, false)
+					else
+						sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, true)
+					end
+				end
+			end)
+		end
 		task.wait(2)
-		if (HMNRT.Position - lastPos).magnitude < 0.1 then
+		if (HMNRT.Position - lastPos).magnitude < 0.6 then
 			afkTime += 1.5
 			if ZombieFarm and afkTime >= afkThreshold then
 				if tonumber(game.PlaceId) ~= tonumber(103754275310547) then
