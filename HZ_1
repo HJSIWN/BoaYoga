@@ -3,7 +3,7 @@ repeat wait(1) until game:IsLoaded()
 repeat wait(1) until game.Players.LocalPlayer and game.Players.LocalPlayer.Character
 
 if getgenv().SomtankIsRun then return end
-getgenv().SomtankIsRun = true
+getgenv().SomtankIsRun = false
 
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
@@ -18,37 +18,17 @@ UIS = game:GetService("UserInputService")
 
 ----------------------------------------------------
 local jsonData = nil
-
+print("")
 print("[[[[[[[[[[ Found - getgenv().Setting ]]]]]]]]]]")
+print("")
 if getgenv().Setting then
 	for k, v in pairs(getgenv().Setting) do
 		print("************* "..k, v)
 	end
-	jsonData = HttpService:JSONEncode(getgenv().Setting)
-else
-	getgenv().Setting = {
-		Map = "School",-- [ School / Sewers ]
-		Difficulty = "Normal",-- [ Normal / Hard  / Nightmare ]
-		Mode = "None",-- [ None / Campain  / Endless ]
-		Language = "Thai",--[ Thai / English ]
-		Farm_Mode = ""--[ Kai_tan = Farm ] 15fps )
-	}
-	for k, v in pairs(getgenv().Setting) do
-		print("************* "..k, v)
-	end
-	jsonData = HttpService:JSONEncode(getgenv().Setting)
 end
+print("")
 print("***********************************************")
-
-if jsonData then
-	queue_on_teleport([[
-      local HttpService = game:GetService("HttpService")
-      local Setting_Farm = ']] .. jsonData .. [['
-      getgenv().Setting = HttpService:JSONDecode(Setting_Farm)
-      loadstring(game:HttpGet("https://raw.githubusercontent.com/HJSIWN/BoaYoga/refs/heads/main/HZ_1"))()
-    ]])
-end
-
+print("")
 -----------------------------------------------------
 
 player = game.Players.LocalPlayer
@@ -94,8 +74,8 @@ task.spawn(function()-- Anti Bug
 					NewScreenGui.Name = "SomtankBlackSgreen"
 					ShowText = NewTextLabel
 				end
-				local cameraPos = HMNRT.Position + Vector3.new(0, 10, 0)
-				local lookAtPos = cameraPos + Vector3.new(0, 100, 0)
+				cameraPos = HMNRT.Position + Vector3.new(0, 15, 0)
+				lookAtPos = cameraPos + Vector3.new(0, 100, 0)
 				Camera.CameraType = Enum.CameraType.Scriptable
 				Camera.CFrame = CFrame.new(cameraPos, lookAtPos)
 			end
@@ -178,6 +158,59 @@ local function Translate(ThaiLang, EngLang)
 	return Resut
 end
 
+Url_WebHook = nil
+local function getAvatarUrl(userId)
+	local req = (syn and syn.request) or (http_request) or (fluxus and fluxus.request)
+	if not req then return nil end
+	local response = req({
+		Url = "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" .. userId .. "&size=420x420&format=Png&isCircular=false",
+		Method = "GET"
+	})
+	if response and response.Body then
+		local data = HttpService:JSONDecode(response.Body)
+		if data and data.data and data.data[1] and data.data[1].imageUrl then
+			return data.data[1].imageUrl
+		end
+	end
+	return nil
+end
+avatarUrl = getAvatarUrl(player.UserId) or "https://www.roblox.com/favicon.ico"
+local function sendWebhook(cash, exp, playtime, Win)
+	pcall(function()
+		Color_Embed = tonumber(16730495)
+		if Win == true then
+			Color_Embed = tonumber(6390015)
+		else
+			Color_Embed = tonumber(16730495)
+		end
+		local embed = {
+			["title"] = "📊 Player Update",
+			["description"] = 
+				"**Player:** `" .. player.Name .. "`\n" ..
+				"**Cash:** `" .. cash .. "`\n" ..
+				"**EXP:** `" .. exp .. "`\n" ..
+				"**Playtime:** `" .. playtime .. " นาที`",
+			["color"] = Color_Embed, -- ใช้สีสุ่ม
+			["thumbnail"] = {["url"] = avatarUrl},
+			["footer"] = {["text"] = "Auto Logger"},
+			["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")}
+		local data = {
+			["username"] = "Somtank Notification",
+			["avatar_url"] = "https://media.discordapp.net/attachments/1367059030274609183/1402311137189695638/DIsCord.png?ex=68ae7a44&is=68ad28c4&hm=776c9522ad4b5fbe54d37080cfa5af2c64204df8be28738c81952e1cbacfe5c5&=&format=webp&quality=lossless&width=656&height=656",
+			["embeds"] = {embed}}
+		local jsonData = HttpService:JSONEncode(data)
+		local req = (syn and syn.request) or (http_request) or (fluxus and fluxus.request)
+		if req then
+			req({
+				Url = Url_WebHook or getgenv().Setting.WebHook,
+				Method = "POST",
+				Headers = {["Content-Type"] = "application/json"},
+				Body = jsonData})
+		end
+	end)
+end
+
+-------------------------------------------------------------------------- Day to Day 2044
 local function InitAutoClaimAch()
 	if tonumber(game.PlaceId) ~= tonumber(103754275310547) then return end
 	local tbl = {
@@ -219,9 +252,9 @@ InitAutoClaimAch()
 local function InitAutoClaim()
 	if tonumber(game.PlaceId) ~= tonumber(103754275310547) then return end
 	local tbl = {
-		lp = game:GetService("Players").LocalPlayer,
+		lp = player,
 	}
-	tbl.gui = tbl.lp:WaitForChild("PlayerGui"):WaitForChild("GUI")
+	tbl.gui = plrGui:WaitForChild("GUI")
 	tbl.scroller = tbl.gui.Quests.Content.Scroller
 	tbl.claimQuest = function(btn)
 		for _, conn in ipairs(getconnections(btn.MouseButton1Click)) do
@@ -254,7 +287,138 @@ local function InitAutoClaim()
 	end)
 end
 InitAutoClaim()
-
+local function InitGodmode()
+	if tonumber(game.PlaceId) == tonumber(103754275310547) then return end
+	local t = {
+		ReplicatedFirst = game:GetService("ReplicatedFirst"),
+		Players = game:GetService("Players"),
+	}
+	pcall(function()
+		t.GameCore = t.ReplicatedFirst:WaitForChild("GameCore")
+		t.Shared   = t.GameCore:WaitForChild("Shared")
+		t.Packets  = require(t.Shared:WaitForChild("ByteNetPackets")).packets
+		t.target   = t.Packets.activateDoor.send
+		t.oldSend  = clonefunction(t.target)
+		t.enable = function()
+			if #t.Players:GetPlayers() > 1 then
+				warn("Godmode blocked: ผู้เล่นมากกว่า 1 คนในเซิร์ฟ")
+				return
+			end
+			hookfunction(t.target, newcclosure(function(door, ...)
+				if checkcaller() then
+					return t.oldSend(door, ...)
+				end
+				warn("Godmode active:", door and door:GetFullName())
+				if door and door:IsA("Model") then
+					door:SetAttribute("activated", true)
+					for _, part in ipairs(door:GetDescendants()) do
+						if part:IsA("BasePart") then
+							part.CanCollide, part.CanTouch, part.CanQuery = false, false, false
+						end
+					end
+				end
+				return
+			end))
+			warn("Godmode enabled")
+		end
+		t.disable = function()
+			restorefunction(t.target)
+			warn("Godmode disabled, restored to original")
+		end
+		t.toggle = function(state)
+			if state then
+				t.enable()
+			else
+				t.disable()
+			end
+			getgenv().Godmode = state
+		end
+	end)
+	return t
+end
+local Godmode = InitGodmode()
+getgenv().Godmode = false
+local function InitNoEffect()
+	if tonumber(game.PlaceId) == tonumber(103754275310547) then return end
+	local t = {
+		ReplicatedFirst = game:GetService("ReplicatedFirst"),
+	}
+	t.GameCore = t.ReplicatedFirst:WaitForChild("GameCore")
+	t.Shared   = t.GameCore:WaitForChild("Shared")
+	do
+		local m = require(t.Shared:WaitForChild("StatusEffects"))
+		m.apply, m.update, m.remove = function(...)end, function(...)end, function(...)end
+		m.validate, m.getEntity, m.init = function(...)return false end, function(...)return nil end, function(...)end
+		for k in pairs(m.events) do
+			m.events[k].Fire    = function(...) end
+			m.events[k].Connect = function(...) return {Disconnect=function()end} end
+		end
+	end
+	do
+		local m = require(t.Shared.StatusEffects.Effect)
+		m.new     = function(...) return setmetatable({}, {__index=function() return function()end end}) end
+		m.update  = function(...) end
+		m.destroy = function(...) end
+		m.runFunc = function(...) end
+	end
+	do
+		local m = require(t.Shared.StatusEffects.EffectsData)
+		for _, d in pairs(m) do d.functions = {} end
+	end
+	do
+		local m = require(t.Shared:WaitForChild("VFXManager"))
+		m.emit, m.toggle, m.toggleAll, m.getVFXObject = function(...)end, function(...)end, function(...)end, function(...)return nil end
+	end
+	do
+		local m = require(t.Shared.VFXManager.VFX)
+		m.new = function(...) return {emit=function()end, toggle=function()end} end
+	end
+	do
+		local m = require(t.Shared.AbilityService)
+		m.getAbilityHandler = function(...) return {addStatMult=function()end, statsMult={}} end
+	end
+	warn("⛔ NoEffect enabled: ปิด StatusEffects, Effect, EffectsData, VFXManager, VFX, AbilityService (เสียงยังทำงาน)")
+	return t
+end
+local function InitAutoClaimSecretQuest()
+	if tonumber(game.PlaceId) ~= tonumber(103754275310547) then return end
+	local tbl = {
+		lp = player,
+	}
+	tbl.gui = tbl.lp:WaitForChild("PlayerGui"):WaitForChild("GUI")
+	tbl.scroller = tbl.gui.SecretQuests.Content.Scroller
+	tbl.claim = function(btn)
+		for _, conn in ipairs(getconnections(btn.MouseButton1Click)) do
+			conn.Function()
+		end
+	end
+	tbl.checkAndClaim = function()
+		tbl.claimable = {}
+		for _, sq in ipairs(tbl.scroller:GetChildren()) do
+			if sq.Name == "sQuest" then
+				tbl.btn = sq:FindFirstChild("Content") and sq.Content:FindFirstChild("Button")
+				if tbl.btn then
+					tbl.claimBtn, tbl.lockedBtn = tbl.btn:FindFirstChild("Claim"), tbl.btn:FindFirstChild("Locked")
+					if tbl.claimBtn and tbl.lockedBtn and tbl.claimBtn.Visible and not tbl.lockedBtn.Visible then
+						table.insert(tbl.claimable, tbl.claimBtn)
+					end
+				end
+			end
+		end
+		for _, b in ipairs(tbl.claimable) do
+			tbl.claim(b)
+		end
+	end
+	task.spawn(function()
+		while task.wait(2) do
+			if getgenv().AutoClaimSecretQuest then
+				tbl.checkAndClaim()
+			end
+		end
+	end)
+end
+InitAutoClaimSecretQuest()
+-------------------------------------------------------------------------- Day to Day 2044 End
 
 local Window = WindUI:CreateWindow({
 	Title = "Somtank",
@@ -266,7 +430,7 @@ local Window = WindUI:CreateWindow({
 	Theme = "Violet",
 	User = {Enabled = true,Callback = function() end,Anonymous = false},
 	SideBarWidth = 200,
-	ScrollBarEnabled = true
+	ScrollBarEnabled = true,
 })
 
 WindUI.TransparencyValue = 0.1
@@ -320,35 +484,6 @@ local function IsNear(pos1, pos2, maxDist)
 	return (pos1 - pos2).Magnitude <= maxDist
 end
 
-local originalCanCollideMap, NoclipConnection = {}, nil
-function noclip()
-	if NoclipConnection then NoclipConnection:Disconnect() end
-	NoclipConnection = RunService.Stepped:Connect(function()
-		if character and character:IsDescendantOf(workspace) then
-			for _, part in ipairs(character:GetDescendants()) do
-				if part:IsA("BasePart") and part.CanCollide == true then
-					if originalCanCollideMap[part] == nil then
-						originalCanCollideMap[part] = true
-					end
-					part.CanCollide = false
-				end
-			end
-		end
-	end)
-end
-function clip()
-	if NoclipConnection then
-		NoclipConnection:Disconnect()
-		NoclipConnection = nil
-	end
-	for part, wasCollidable in pairs(originalCanCollideMap) do
-		if wasCollidable and part and part:IsA("BasePart") then
-			part.CanCollide = true
-		end
-	end
-	originalCanCollideMap = {}
-end
-
 Section = Tabs.Mode4:Section({ 
 	Title = "Section",
 	TextXAlignment = "Left",
@@ -356,23 +491,83 @@ Section = Tabs.Mode4:Section({
 })
 Section:SetTitle(Translate("🌏 ฟังชั่นทั่วไป", "🌏 General functions"))
 
-Toggle_Auto_Claim_Achievement = Tabs.Mode4:Toggle({
-	Title = Translate("ออโต้รับความสำเร็จ ( Achievement )", "Auto Claim Achievement"),
+Toggle_Auto_Accept_Secret_Quest = Tabs.Mode4:Toggle({
+	Title = Translate("ออโต้รับเควสลับ ( Secret )", "Auto accept secret quests"),
 	Value = false,
 	Callback = function(state)
-		getgenv().AutoClaimQuest = state
+		getgenv().AutoClaimSecretQuest = state
 	end
 })
 
-Toggle_Auto_Claim_Quest = Tabs.Mode4:Toggle({
-	Title = Translate("ออโต้รับเควส ( Quest )", "Auto Claim Quest"),
+Toggle_Auto_Claim_Achievement = Tabs.Mode4:Toggle({
+	Title = Translate("ออโต้รับความสำเร็จ ( Achievement )", "Auto Claim Achievement"),
 	Value = false,
 	Callback = function(state)
 		getgenv().AutoClaimAch = state
 	end
 })
 
+Toggle_Auto_Claim_Quest = Tabs.Mode4:Toggle({
+	Title = Translate("ออโต้รับรางวัลเควส ( Quest )", "Auto receive quest rewards"),
+	Value = false,
+	Callback = function(state)
+		getgenv().AutoClaim = state
+	end
+})
+
 Tabs.Mode2:Divider()
+
+Tabs.Mode4:Divider()
+
+Tabs.Mode4:Toggle({
+	Title = Translate("ซอมบี้ไม่สนใจ ( เล่นคนเดียวเท่านั้น )", "Zombies don't care ( Play alone only )"),
+	Value = false,
+	Callback = function(state)
+		Godmode.toggle(state)
+	end
+})
+
+Tabs.Mode4:Button({
+	Title = Translate("ปิดเอฟเฟก", "Turn off the effect"),
+	Desc = Translate("คลิกเพื่อปิดเอฟเฟก", "Click to turn off the effect."),
+	Callback = function()
+		InitNoEffect()
+	end,
+})
+
+Tabs.Mode2:Divider()
+
+Tabs.Mode4:Divider()
+
+Send_Webhook_IfEnd = false
+Toggle_Send_Webhook_IfEnd = Tabs.Mode4:Toggle({
+	Title = Translate("ส่งเว็บฮุกเมื่อจบเกม", "Send webhook at the end of the game"),
+	Value = false,
+	Callback = function(state)
+		Send_Webhook_IfEnd = state
+	end
+})
+
+Input_User_Webhook = Tabs.Mode4:Input({
+	Title       = Translate("ลิ้งเว็บฮุก", "Link Webhook"),
+	Desc        = Translate("วางลิ้งเว็บฮุกของคุณ", "Place your webhook link"),
+	Value       = "",
+	Type        = "Input",
+	Placeholder = Translate("วางตรงนี้", "Paste here"),
+	Callback    = function(text)
+		Url_WebHook = tostring(text)
+	end
+})
+
+Button_SendWebHook_End = Tabs.Mode4:Button({
+	Title = Translate("ทดสอบเว็บฮุก", "Test webhook"),
+	Desc = Translate("คลิกเพื่อส่งเว็บฮุก", "Click to Send webhook"),
+	Callback = function()
+		sendWebhook("999k", "123", "11:22:33", false)
+	end,
+})
+
+Tabs.Mode4:Divider()
 
 Section = Tabs.Mode3:Section({ 
 	Title = "Section",
@@ -572,10 +767,8 @@ Toggle_ZombieFarm = Tabs.Mode2:Toggle({
 	Callback = function(state)
 		ZombieFarm = state
 		if state == false then
-			clip()
 			Camera.CameraType = Enum.CameraType.Custom
 		else
-			noclip()
 		end
 	end
 })
@@ -643,35 +836,33 @@ Slider_Cool_Down_Auto_Create = Tabs.Mode2:Slider({
 	end
 })
 
-Choose_Map_Farm = tostring(getgenv().Setting.Map)
-Tabs.Mode2:Dropdown({
-	Title = Translate("แมพที่ต้องการฟาร์ม", "Map needs farming"),
-	Values = { "School", "Sewers" },--"Sewers"
-	Value = Choose_Map_Farm,
-	Callback = function(option) 
-		Choose_Map_Farm = option
-	end
-})
-
-Choose_Difficulty_Farm = tostring(getgenv().Setting.Difficulty)
-Tabs.Mode2:Dropdown({
-	Title = Translate("ระดับความยากที่ต้องการฟาร์ม", "Difficulty to farm"),
-	Values = { "Normal", "Hard", "Nightmare"},
-	Value = Choose_Difficulty_Farm,
-	Callback = function(option) 
-		Choose_Difficulty_Farm = option
-	end
-})
-
-Choose_Mode_Farm = tostring(getgenv().Setting.Mode)
-Tabs.Mode2:Dropdown({
-	Title = Translate("โหมดที่ต้องการฟาร์ม", "Mode to farm"),
-	Values = {"None","Campaign", "Endless"},
-	Value = Choose_Mode_Farm,
-	Callback = function(option) 
-		Choose_Mode_Farm = option
-	end
-})
+Choose_Map_Farm = "School"
+--Dropdown_Choose_Map_Farm = Tabs.Mode2:Dropdown({
+--	Title = Translate("แมพที่ต้องการฟาร์ม", "Map needs farming"),
+--	Values = { "School", "Sewers" },--"Sewers"
+--	Value = Choose_Map_Farm,
+--	Callback = function(option)
+--		Choose_Map_Farm = option
+--	end
+--})
+Choose_Difficulty_Farm = "Normal"
+--Dropdown_Choose_Difficulty_Farm = Tabs.Mode2:Dropdown({
+--	Title = Translate("ระดับความยากที่ต้องการฟาร์ม", "Difficulty to farm"),
+--	Values = { "Normal", "Hard", "Nightmare"},
+--	Value = Choose_Difficulty_Farm,
+--	Callback = function(option) 
+--		Choose_Difficulty_Farm = option
+--	end
+--})
+Choose_Mode_Farm = "None"
+--Dropdown_Choose_Mode_Farm = Tabs.Mode2:Dropdown({
+--	Title = Translate("โหมดที่ต้องการฟาร์ม", "Farm Mode"),
+--	Values = {"None","Campaign", "Endless"},
+--	Value = Choose_Mode_Farm,
+--	Callback = function(option) 
+--		Choose_Mode_Farm = option
+--	end
+--})
 
 Section = Tabs.Mode2:Section({ 
 	Title = "Section",
@@ -751,6 +942,7 @@ task.spawn(function()
 				ScriptIsRunning = false
 				BlackScreen = true
 				
+				InitNoEffect()
 				setfpscap(15)
 				
 				if not plrGui:FindFirstChild("SomtankBlackSgreen") then
@@ -1068,7 +1260,7 @@ task.spawn(function()-- Create Room
 		if AutoCreateRoom then
 			print("AutoCreateRoom is Reapeat")
 			repeat
-				if TimeReTry >= 5 then
+				if TimeReTry >= 50 then
 					serverHop(15)
 				end
 				repeat
@@ -1079,6 +1271,8 @@ task.spawn(function()-- Create Room
 							task.wait(0.1)
 							firetouchinterest(HMNRT, target, 1)
 						end
+						TimeReTry = TimeReTry + 0.5
+						print("TimeReTry "..TimeReTry)
 					end)
 					wait(0.5)
 				until StartPlaceRedo.Visible == true
@@ -1140,7 +1334,10 @@ task.spawn(function()-- Door
 					if v:IsA("Model") and v.PrimaryPart and not v:FindFirstChild("OpennedBySomtank") then
 						pcall(function()
 							Camera.CameraType = Enum.CameraType.Scriptable
-							HMNRT.CFrame = CFrame.new(v.PrimaryPart.Position)
+							for i=1,20 do
+								HMNRT.CFrame = CFrame.new(v.PrimaryPart.Position)
+								wait(0.001)
+							end
 							NewHighlight = Instance.new("RayValue", v)
 							NewHighlight.Name = "OpennedBySomtank"
 						end)
@@ -1243,12 +1440,12 @@ task.spawn(function()-- Auto Collet Item
 	end
 end)
 
-task.spawn(function()
+task.spawn(function()-- Zombies Farm
 	repeat
 		wait(1)
 	until game:IsLoaded()
 	
-	local Entities, Stage, WantHeli, Map = workspace:WaitForChild("Entities"), "none", 0, "School"
+	local Entities, Stage, WantHeli, Map, XPosition = workspace:WaitForChild("Entities"), "none", 0, "School", -5
 	local RadioObjective, HeliObjective, generator = nil, nil, nil
 
 	local EndScreen = plrGui:WaitForChild("MainScreen_Sibling"):WaitForChild("EndScreen")
@@ -1284,6 +1481,7 @@ task.spawn(function()
 						end
 					end)
 				end
+				print("Stage "..Stage.." Map "..Map)
 				if Map == "Sewers" then
 					if Stage == "Wait_Start_Generator" then
 						if generator == nil then
@@ -1296,23 +1494,37 @@ task.spawn(function()
 								generator = workspace:FindFirstChild("Sewers"):FindFirstChild("Rooms"):FindFirstChild("BossRoom"):FindFirstChild("generator"):FindFirstChild("gen")
 							end
 						else
-							clip()
 							local Prox = generator:FindFirstChildOfClass("ProximityPrompt")
-							HMNRT.CFrame = CFrame.new(generator.Position) * CFrame.new(0,3,0)
+							for i=1,10 do
+								print(function()
+									HMNRT.CFrame = CFrame.new(generator.Position) * CFrame.new(0,3,0)
+								end)
+								wait(0.1)
+							end
 							wait(0.5)
 							fireproximityprompt(Prox)
 							wait(0.5)
 							Stage = "Wait_gate_Open"
-							noclip()
 						end
 					elseif Stage == "Wait_gate_Open" then
-						if WantHeli >= 5 then
-							if EndScreen.Visible == true then
-								wait(0.5)
-								firesignal(back_to_lobby_Button.MouseButton1Click)
+						if EndScreen.Visible == true then
+							wait(2)
+							EndScreen = plrGui:WaitForChild("MainScreen_Sibling"):WaitForChild("EndScreen")
+							if EndScreen.Visible == true and Send_Webhook_IfEnd == true then
+								Stats_ = EndScreen:WaitForChild("List"):WaitForChild("stats")
+								Coin = Stats_:WaitForChild("cashearned"):WaitForChild("v")
+								Exp = Stats_:WaitForChild("expearned"):WaitForChild("v")
+								PlayTime = Stats_:WaitForChild("playtime"):WaitForChild("v")
+								Failure = EndScreen:WaitForChild("List"):WaitForChild("Title"):WaitForChild("Failure")
+								wait(3)
+								if Failure.Enabled == true then
+									sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, false)
+								else
+									sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, true)
+								end
 							end
-						else
-							WantHeli = WantHeli + 0.5
+							wait(2)
+							firesignal(back_to_lobby_Button.MouseButton1Click)
 						end
 					end
 				elseif Map == "School" then
@@ -1326,18 +1538,21 @@ task.spawn(function()
 								RadioObjective = workspace:FindFirstChild("School"):FindFirstChild("Rooms"):FindFirstChild("RooftopBoss"):FindFirstChild("RadioObjective")
 							end
 						else
-							clip()
 							local Prox = RadioObjective:FindFirstChildOfClass("ProximityPrompt")
 							HMNRT.CFrame = CFrame.new(RadioObjective.Position) * CFrame.new(0,3,0)
 							wait(0.5)
 							fireproximityprompt(Prox)
 							wait(0.5)
 							Stage = "Calling_Helicopter"
-							noclip()
 						end
 					elseif Stage == "Calling_Helicopter" then
 						if WantHeli >= 18 then
-							HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
+							for i=1,10 do
+								print(function()
+									HMNRT.CFrame = CFrame.new(HeliObjective.Position) * CFrame.new(0,5,0)
+								end)
+								wait(0.1)
+							end
 							local Prox = HeliObjective:FindFirstChildOfClass("ProximityPrompt")
 							wait(0.5)
 							fireproximityprompt(Prox)
@@ -1350,7 +1565,24 @@ task.spawn(function()
 							repeat
 								wait(0.3)
 							until EndScreen.Visible == true
-							wait(0.5)
+							wait(2)
+							print(function()
+								EndScreen = plrGui:WaitForChild("MainScreen_Sibling"):WaitForChild("EndScreen")
+								if EndScreen.Visible == true and Send_Webhook_IfEnd == true then
+									Stats_ = EndScreen:WaitForChild("List"):WaitForChild("stats")
+									Coin = Stats_:WaitForChild("cashearned"):WaitForChild("v")
+									Exp = Stats_:WaitForChild("expearned"):WaitForChild("v")
+									PlayTime = Stats_:WaitForChild("playtime"):WaitForChild("v")
+									Failure = EndScreen:WaitForChild("List"):WaitForChild("Title"):WaitForChild("Failure")
+									wait(3)
+									if Failure.Enabled == true then
+										sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, false)
+									else
+										sendWebhook(Coin.Text, Exp.Text, PlayTime.Text, true)
+									end
+								end
+							end)
+							wait(2)
 							firesignal(back_to_lobby_Button.MouseButton1Click)
 						else
 							WantHeli = WantHeli + 0.5
@@ -1372,8 +1604,8 @@ task.spawn(function()-- Auto Kill
 	while true do
 		if ZombieFarm or AutoKill then
 			repeat
-				ByteNetReliable:FireServer(buffer.fromstring("\a\004\001"),{1755879640.252399})
-				wait(0.1)
+				ByteNetReliable:FireServer(buffer.fromstring("\a\004\001"),{1755879640.252399 + math.random()})
+				wait(tonumber("0."..math.random(2, 6)))
 			until ZombieFarm == false and AutoKill == false
 		end
 		wait(1)
@@ -1406,6 +1638,10 @@ local elements = {
 	Toggle_BlackScreen = Toggle_BlackScreen,
 	Toggle_Auto_Claim_Achievement = Toggle_Auto_Claim_Achievement,
 	Toggle_Auto_Claim_Quest = Toggle_Auto_Claim_Quest,
+	Toggle_Auto_Accept_Secret_Quest = Toggle_Auto_Accept_Secret_Quest,
+	Button_SendWebHook_End = Button_SendWebHook_End,
+	Input_User_Webhook = Input_User_Webhook,
+	Toggle_Send_Webhook_IfEnd = Toggle_Send_Webhook_IfEnd,
 }
 for name, element in pairs(elements) do
 	myConfig:Register(name, element)
@@ -1416,11 +1652,53 @@ for name, value in pairs(configs) do
 	local element = myConfig.Elements[name]
 	if element and value ~= nil then
 		element.Value = value
+		print(name .. " loaded as " .. tostring(value))
 	end
 end
-local lastPos, afkTime, afkThreshold, StuckTime = HMNRT.Position, 0, 30, 0
+
+if not getgenv().Setting then
+	getgenv().Setting = {
+		Map = Choose_Map_Farm or "School",
+		Difficulty = Choose_Difficulty_Farm or "Normal",
+		Mode = Choose_Mode_Farm or "None",
+		Language = "Thai",
+		Farm_Mode = "",
+		WebHook = ""
+	}
+end
+
+jsonData = HttpService:JSONEncode(getgenv().Setting)
+
+if jsonData then
+	queue_on_teleport([[
+      local HttpService = game:GetService("HttpService")
+      local Setting = ']] .. jsonData .. [['
+      getgenv().Setting = HttpService:JSONDecode(Setting)
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/HJSIWN/BoaYoga/refs/heads/main/HZ_1"))()
+    ]])
+end
+
+print("Set Qte = Mode "..tostring(Choose_Mode_Farm).." Difficulty "..tostring(Choose_Difficulty_Farm).." Map "..tostring(Choose_Map_Farm))
+
+lastPos, afkTime, afkThreshold, StuckTime = HMNRT.Position, 0, 180, 0
+
+--PlayerGui.MainScreen_Sibling.EndScreen.List.stats.cashearned.v -- Coin Per round
+--PlayerGui.MainScreen_Sibling.EndScreen.List.stats.expearned.v -- Exp
+--PlayerGui.MainScreen_Sibling.EndScreen.List.stats.playtime.v
+--PlayerGui.MainScreen_Sibling.EndScreen.List.Title
+-- PlayerGui.MainScreen_Sibling.EndScreen.List.Title.Failure.Enabled == ture | Failure / Survived
+
+-- PlayerGui.MainScreen_Sibling.EndScreen
+
 while true do
 	pcall(function()
+		if ShowText then
+			if tonumber(game.PlaceId) == tonumber(103754275310547) then
+				ShowText.Text = "> Lobby <"
+			else
+				ShowText.Text = "> Farming <"
+			end
+		end
 		StuckTime = StuckTime + 2
 		if StuckTime >= 1080 then
 			game:GetService("TeleportService"):Teleport(103754275310547, game.Players.LocalPlayer)
