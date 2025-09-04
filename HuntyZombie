@@ -47,7 +47,6 @@ end
 if not prettyAssert(getgenv()._SomtankValidated.ok, "Unauthorized! Must run through KeySystem first.") then
     return
 end
-print("Verified with salted hash:", getgenv()._SomtankValidated.hash)
 
 repeat wait(0.2) until game.Players.LocalPlayer and game.Players.LocalPlayer.Character
 
@@ -1006,6 +1005,7 @@ Toggle_ZombieFarm = Tabs.Mode2:Toggle({
 		if state == false then
 			wait(1)
 			Camera.CameraType = Enum.CameraType.Custom
+			workspace.Gravity = 190
 		end
 	end
 })
@@ -1498,7 +1498,7 @@ task.spawn(function()-- Zombies Farm
 					copterRotor = RooftopBoss:FindFirstChild("Chopper"):FindFirstChild("Body"):FindFirstChild("Main")
 				end
 				if copterRotor and HeliObjective then
-					if IsNear(copterRotor.Position, HeliObjective.Position, 10) or AutoSkipHelicopter then
+					if IsNear(copterRotor.Position, HeliObjective.Position, 10) or AutoSkipHelicopter == true then
 						print("********* Heli Copter Near CanGo!!")
 						wait(5)
 						ZombieFarm = false
@@ -1508,12 +1508,22 @@ task.spawn(function()-- Zombies Farm
 								pcall(function()
 									HMNRT.CFrame = HeliObjective.CFrame
 									fireproximityprompt(HeliProximityPrompt)
-									wait(0.1)
+									print("Fire ProximityPrompt Get in Helicopter")
+									wait(0.3)
 								end)
 							end
 						end
 						wait(0.5)
-						print("Fire ProximityPrompt Get in Helicopter")
+						if AutoSkipHelicopter == true then
+							for i=1,15 do
+								pcall(function()
+									HMNRT.CFrame = HeliObjective.CFrame
+									fireproximityprompt(HeliProximityPrompt)
+									print("Fire ProximityPrompt Get in Helicopter")
+									wait(0.3)
+								end)
+							end
+						end
 						repeat
 							print("Repeat Wait Heli Go")
 							wait(0.3)
@@ -1627,7 +1637,7 @@ task.spawn(function()-- Zombies Farm
 	while true do
 		if ZombieFarm then
 			repeat
-				task.wait(5)
+				task.wait(3)
 				if Stage ~= "WantWin" then
 					pcall(function()
 						Check_Zombie()
@@ -1645,19 +1655,15 @@ task.spawn(function()-- Zombies Farm
 								if ZombieFarm and NearZombie:FindFirstChild("HumanoidRootPart") and NearZombie:FindFirstChild("Head") then
 									HealthBar_Zombie = NearZombie:FindFirstChild("Head"):FindFirstChild("EntityHealth"):FindFirstChild("HealthBar"):FindFirstChild("Bar")
 									if HealthBar_Zombie and HealthBar_Zombie.Size.X.Scale > 0 then
-										StuckZombies, Y_align, Z_align, Old_Health, SteamSniping = 0, 0, 6, HealthBar_Zombie.Size.X.Scale, 0
+										StuckZombies, Y_align, Z_align, Old_Health, SteamSniping = 0, 0, 3, HealthBar_Zombie.Size.X.Scale, 0
+										workspace.Gravity = 0
 										repeat
 											pcall(function()
 												Old_Health = HealthBar_Zombie.Size.X.Scale
-												if Zombie_Stuts and Zombie_Stuts:FindFirstChild("Toxic_Skill") then
-													Y_align = 10
-												else
-													Y_align = 0
-												end
 												if NearZombie and NearZombie:FindFirstChild("Chef_Tag") then
-													Z_align = -6
+													Z_align = -3
 												else
-													Z_align = 6
+													Z_align = 3
 												end
 												HMNRT.CFrame = NearZombie.HumanoidRootPart.CFrame * CFrame.new(0,FarmHeight + Y_align, Z_align)
 												HMNRT.CFrame = CFrame.lookAt(HMNRT.Position, NearZombie.HumanoidRootPart.Position)
@@ -1678,12 +1684,13 @@ task.spawn(function()-- Zombies Farm
 										until HealthBar_Zombie.Size.X.Scale <= 0 or HealthBar_Zombie == nil
 											or ZombieFarm == false or NearZombie == nil or StuckZombies > 1
 										StuckZombies = 0
+										workspace.Gravity = 190
 									end
 								end
 							end
 							wait(0.001)
 						until #Entities.Zombie:GetChildren() <= 1 or ZombieFarm == false
-						
+						task.wait(3)
 					end)
 				end
 				if Map == "Sewers" then
