@@ -54,5 +54,6 @@ if tonumber(game.PlaceId) == tonumber(79546208627805) then
 		end
 	end)
 	print("teleport Old Server")
-	wait(50)
+	wait(20)
+    game:GetService("TeleportService"):Teleport(79546208627805, game.Players.LocalPlayer)
 end
