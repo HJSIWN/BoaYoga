@@ -1,0 +1,58 @@
+l = game.Players.LocalPlayer;
+plrGUI = l.PlayerGui;
+ch = l.Character;
+hmn = ch:WaitForChild("HumanoidRootPart")
+if tonumber(game.PlaceId) == tonumber(79546208627805) then
+	EntryScreen = plrGUI:WaitForChild("Interface"):WaitForChild("EntryScreen")
+	LobbyCreate = plrGUI:WaitForChild("Interface"):WaitForChild("LobbyCreate")
+	CloseButton = plrGUI:WaitForChild("Interface"):WaitForChild("LobbyCreate"):WaitForChild("CloseButton")
+	Exit_Button = plrGUI:WaitForChild("TeleporterAssets"):WaitForChild("TextButton")
+	local function createLobby(size)
+		local chosenFunc
+		for i, func in ipairs(getgc(true)) do
+			if type(func) == "function" and islclosure(func) then
+				for _, c in ipairs(debug.getconstants(func)) do
+					if tostring(c) == "Chosen" then
+						chosenFunc = func
+					end
+				end
+			end
+		end
+		debug.setupvalue(chosenFunc, 2, size)
+		local selfTable = debug.getupvalue(chosenFunc, 1)
+		local ok, res = pcall(chosenFunc, selfTable)
+	end	
+	GetRoom = false
+	EntryScreen.Visible = false
+	pcall(function()
+		for i=1,10 do
+			for i2=1,3 do
+				if workspace:FindFirstChild("Teleporter"..i2) and not GetRoom then
+					Teleporter_Model = workspace:FindFirstChild("Teleporter"..i)					
+					if Teleporter_Model:FindFirstChild("BillboardHolder") and Teleporter_Model:FindFirstChild("BillboardHolder"):FindFirstChild("BillboardGui") then
+						BillboardHolder = Teleporter_Model:FindFirstChild("BillboardHolder"):FindFirstChild("BillboardGui"):WaitForChild("Players")
+						for _,item in ipairs(Teleporter_Model:GetChildren()) do
+							if BillboardHolder and BillboardHolder.Text == "0/5" and not GetRoom then
+								if item:IsA("BasePart") and item.Name == "EnterPart" then
+									firetouchinterest(hmn, item, 0)
+									task.wait(0.001)
+									firetouchinterest(hmn, item, 1)
+								end
+							end
+							wait(0.1)
+							if LobbyCreate.Visible == true then
+								print("GetRoom = true")
+								GetRoom = true
+								createLobby(1)
+								wait(10)
+							end
+						end
+					end					
+				end
+			end
+			wait(3)
+		end
+	end)
+	print("teleport Old Server")
+	wait(50)
+end
