@@ -45,6 +45,7 @@ MoveIcon.Activated:Connect(function()
 end)
 Window.User:Disable()
 Window:SetIconSize(30)
+Window:EditOpenButton({Title = "",Icon = "",CornerRadius = UDim.new(0,0),StrokeThickness = 0,Color = ColorSequence.new(Color3.fromHex("FF0F7B"),Color3.fromHex("F89B29")),Enabled = false,Draggable = false,})
 Window:Tag({Title = "โหดจัดลูกพี่",Color = Color3.fromHex("#30ff6a")})
 local Tabs = {}
 do
@@ -78,6 +79,17 @@ Tabs.Mode1:Slider({
 		WalkSpeed_st = value
 	end
 })
+Tabs.Mode1:Input({
+	Title = "วิ่งเร็ว",
+	Desc = "พิมพ์ค่าที่ต้องการ",
+	Value = 16,
+	Type = "Input",
+	Placeholder = "ใส่ค่าความเร็วช่องนี้...",
+	Callback = function(input) 
+		WalkSpeed_st = tonumber(input)
+	end
+})
+Tabs.Mode1:Divider()
 JumpPower_st = 7.2
 Tabs.Mode1:Slider({
 	Title = "โดดสูง",
@@ -91,7 +103,17 @@ Tabs.Mode1:Slider({
 		JumpPower_st = value
 	end
 })
-
+Tabs.Mode1:Input({
+	Title = "โดดสูง",
+	Desc = "พิมพ์ค่าที่ต้องการ",
+	Value = 16,
+	Type = "Input",
+	Placeholder = "ใส่ค่าโดดสูงช่องนี้...",
+	Callback = function(input) 
+		JumpPower_st = tonumber(input)
+	end
+})
+Tabs.Mode1:Divider()
 Tabs.Mode1:Slider({
 	Title = "แรงโน้มถ่วง",
 	Step = 2,
@@ -106,7 +128,18 @@ Tabs.Mode1:Slider({
 		end)
 	end
 })
-
+Tabs.Mode1:Input({
+	Title = "แรงโน้มถ่วง",
+	Desc = "พิมพ์ค่าที่ต้องการ",
+	Value = 16,
+	Type = "Input",
+	Placeholder = "ใส่ค่าแรงโน้มถ่วงช่องนี้...",
+	Callback = function(input) 
+		pcall(function()
+			workspace.Gravity = input
+		end)
+	end
+})
 Enable_Movement = false
 Tabs.Mode1:Toggle({
 	Title = "เปิดใช้งาน",
