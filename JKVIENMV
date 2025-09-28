@@ -1,0 +1,346 @@
+
+-- Open Src Script | Map : Brain Rot Bridge
+
+local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+
+Lighting = game:GetService("Lighting")
+UIS = game:GetService("UserInputService")
+RunService = game:GetService("RunService")
+
+player = game.Players.LocalPlayer
+character = player.Character
+humanoid = character:FindFirstChildOfClass("Humanoid")
+HMNRT = character:FindFirstChild("HumanoidRootPart")
+plrGui = player.PlayerGui
+
+ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+dragging, dragStart, startPos, OpenMainFrame = false, nil, nil, false
+
+local function MakeDraggableButton(button: ImageButton, MoveFrame)
+	button.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then	dragging = true;dragStart = input.Position;	Icon_Position = button.Position;startPos = MoveFrame.Position end end)
+	UIS.InputChanged:Connect(function(input) if dragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then local delta = input.Position - dragStart;MoveFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y) end end)
+	UIS.InputEnded:Connect(function(input)	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end	end)
+end
+local function MakeImageButton(Parent, Size, Posi, BGtran, Color, Imtran, imageID)
+	local NewFrame = Instance.new("ImageButton", Parent);Instance.new("UICorner", NewFrame)
+	NewFrame.Position = Posi;NewFrame.Size = Size;NewFrame.BackgroundTransparency = BGtran;NewFrame.Image = imageID or ""
+	NewFrame.ImageTransparency = Imtran;NewFrame.BackgroundColor3 = Color;NewFrame.ImageColor3 = Color;NewFrame.ZIndex = 2
+	return NewFrame
+end
+MoveIcon = MakeImageButton(ScreenGui, UDim2.new(0, 51,0, 51), UDim2.new(0.100, 0,0.447, 0), 1, Color3.new(1, 1, 1), 0, "rbxassetid://84408196679900");Instance.new("UIAspectRatioConstraint", MoveIcon);MakeDraggableButton(MoveIcon, MoveIcon)
+WindUI.TransparencyValue = 0.1
+local Window = WindUI:CreateWindow({Title = "Somtank",Icon = "rbxassetid://101236369299185",IconThemed = true,
+	Author = "Brain Rot Bridge",Folder = "Somtank",Size = UDim2.fromOffset(460, 320),Transparent = true,Theme = "Violet",
+	User = {Enabled = true,Callback = function() end,Anonymous = false},SideBarWidth = 200,ScrollBarEnabled = true,
+})
+MoveIcon.Activated:Connect(function()
+	if Icon_Position == MoveIcon.Position then
+		OpenMainFrame = not OpenMainFrame
+		if OpenMainFrame == false then
+			Window:Open()
+		else
+			Window:Close()
+		end
+	end
+end)
+Window.User:Disable()
+Window:SetIconSize(30)
+Window:EditOpenButton({Title = "",Icon = "",CornerRadius = UDim.new(0,0),StrokeThickness = 0,Color = ColorSequence.new(Color3.fromHex("FF0F7B"),Color3.fromHex("F89B29")),Enabled = false,Draggable = false,})
+Window:Tag({Title = "โหดจัดลูกพี่",Color = Color3.fromHex("#30ff6a")})
+local Tabs = {}
+do
+	Tabs.Mode1 = Window:Tab({Title = "ผู้ใช้",Icon = "rbxassetid://2795572800"})
+	Tabs.Mode2 = Window:Tab({Title = "เกม", Icon = ""})
+end
+Window:SelectTab(1)
+task.spawn(function()
+	while true do
+		pcall(function()
+			character = player.Character
+			humanoid = character:FindFirstChildOfClass("Humanoid")
+			HMNRT = character:FindFirstChild("HumanoidRootPart")
+		end)
+		wait(1)
+	end
+end)
+
+Title_Info1 = Tabs.Mode1:Section({Title = "Section",TextXAlignment = "Left",TextSize = 30,})
+Title_Info1:SetTitle("การเคลื่อนไหว")
+WalkSpeed_st = 16
+Tabs.Mode1:Slider({
+	Title = "วิ่งเร็ว",
+	Step = 1,
+	Value = {
+		Min = 10,
+		Max = 200,
+		Default = 16,
+	},
+	Callback = function(value)
+		WalkSpeed_st = value
+	end
+})
+Tabs.Mode1:Input({
+	Title = "วิ่งเร็ว",
+	Desc = "พิมพ์ค่าที่ต้องการ",
+	Value = 16,
+	Type = "Input",
+	Placeholder = "ใส่ค่าความเร็วช่องนี้...",
+	Callback = function(input) 
+		WalkSpeed_st = tonumber(input)
+	end
+})
+Tabs.Mode1:Divider()
+JumpPower_st = 7.2
+Tabs.Mode1:Slider({
+	Title = "โดดสูง",
+	Step = 0.2,
+	Value = {
+		Min = 7.2,
+		Max = 200,
+		Default = 7.2,
+	},
+	Callback = function(value)
+		JumpPower_st = value
+	end
+})
+Tabs.Mode1:Input({
+	Title = "โดดสูง",
+	Desc = "พิมพ์ค่าที่ต้องการ",
+	Value = 7.2,
+	Type = "Input",
+	Placeholder = "ใส่ค่าโดดสูงช่องนี้...",
+	Callback = function(input) 
+		JumpPower_st = tonumber(input)
+	end
+})
+Tabs.Mode1:Divider()
+Tabs.Mode1:Slider({
+	Title = "แรงโน้มถ่วง",
+	Step = 2,
+	Value = {
+		Min = -100,
+		Max = 186,
+		Default = 186,
+	},
+	Callback = function(value)
+		pcall(function()
+			workspace.Gravity = value
+		end)
+	end
+})
+Tabs.Mode1:Input({
+	Title = "แรงโน้มถ่วง",
+	Desc = "พิมพ์ค่าที่ต้องการ",
+	Value = 186,
+	Type = "Input",
+	Placeholder = "ใส่ค่าแรงโน้มถ่วงช่องนี้...",
+	Callback = function(input) 
+		pcall(function()
+			workspace.Gravity = input
+		end)
+	end
+})
+Enable_Movement = false
+Tabs.Mode1:Toggle({
+	Title = "เปิดใช้งาน",
+	Value = false,
+	Callback = function(state)
+		Enable_Movement = state
+	end
+})
+
+local NoclipConnection = nil
+local originalCanCollideMap = {}
+local TopOldHMNRTCFrame = HMNRT.CFrame
+function noclip()
+	if NoclipConnection then NoclipConnection:Disconnect() end
+	NoclipConnection = RunService.Stepped:Connect(function()
+		if HMNRT then
+			if HMNRT.Position.Y < -15 then
+				HMNRT.CFrame = TopOldHMNRTCFrame * CFrame.new(0,22,0)
+			else
+				TopOldHMNRTCFrame = HMNRT.CFrame
+			end
+		end
+		if character and character:IsDescendantOf(workspace) then
+			for _, part in ipairs(character:GetDescendants()) do
+				if part:IsA("BasePart") and part.CanCollide == true then
+					if originalCanCollideMap[part] == nil then
+						originalCanCollideMap[part] = true
+					end
+					part.CanCollide = false
+				end
+			end
+		end
+	end)
+end
+function clip()
+	if NoclipConnection then
+		NoclipConnection:Disconnect()
+		NoclipConnection = nil
+	end
+	for part, wasCollidable in pairs(originalCanCollideMap) do
+		if wasCollidable and part and part:IsA("BasePart") then
+			part.CanCollide = true
+		end
+	end
+	originalCanCollideMap = {}
+end
+
+Tabs.Mode1:Divider()
+
+NoClip = false
+Tabs.Mode1:Toggle({
+	Title = "เดินทะลุ",
+	Value = false,
+	Callback = function(state)
+		Esp = state
+		if Esp then
+			noclip()
+		else
+			clip()
+		end
+	end
+})
+
+Title_Info1 = Tabs.Mode2:Section({Title = "Section",TextXAlignment = "Left",TextSize = 30,})
+Title_Info1:SetTitle("เกม")
+
+NoFall = false
+Tabs.Mode2:Toggle({
+	Title = "กันตกโลก",
+	Value = false,
+	Callback = function(state)
+		NoFall = state
+		if not NoFall then
+			if workspace:FindFirstChild("SomtankNoFallPlace") then
+				workspace.SomtankNoFallPlace:Destroy()
+			end
+		end
+	end
+})
+
+Local_Base = {Udin_Base = nil, Bananini_Base = nil, Cappuccino_Base = nil, Tralalero_Base = nil, FoundBase = 0}
+Team_Map_Bridges = workspace:WaitForChild("4 Team Map"):WaitForChild("Bridges")	
+if Team_Map_Bridges and Local_Base.FoundBase < 4 then
+	for _, item in ipairs(Team_Map_Bridges:GetChildren()) do
+		if item:IsA("Model") and item:FindFirstChild("Bridge") and Local_Base.FoundBase < 4 then
+			print("Scan find base ?")
+			if item.Name == "Udin" then
+				Local_Base.Udin_Base = item
+				Local_Base.FoundBase = Local_Base.FoundBase + 1
+			elseif item.Name == "Bananini" then
+				Local_Base.Bananini_Base = item
+				Local_Base.FoundBase = Local_Base.FoundBase + 1
+			elseif item.Name == "Cappuccino" then
+				Local_Base.Cappuccino_Base = item
+				Local_Base.FoundBase = Local_Base.FoundBase + 1
+			elseif item.Name == "Tralalero" then
+				Local_Base.Tralalero_Base = item
+				Local_Base.FoundBase = Local_Base.FoundBase + 1
+			end
+		end
+	end
+end
+Auto_Place_Brige = false
+Tabs.Mode2:Toggle({
+	Title = "ออโต้วางต่อสพะพาน",
+	Value = false,
+	Callback = function(state)
+		Auto_Place_Brige = state
+	end
+})
+
+
+-- {{{{{{{{{{  Start Loop  }}}}}}}}}} -- 
+
+task.spawn(function()
+	while true do
+		if Auto_Place_Brige then
+			if Local_Base and Auto_Place_Brige then
+				if Local_Base.Udin_Base and Local_Base.Udin_Base ~= nil then					
+					local Sensors = Local_Base.Udin_Base.Bridge.Sensors
+					for _, item in ipairs(Sensors:GetChildren()) do
+						if item:IsA("BasePart") and Auto_Place_Brige then
+							item.CFrame = HMNRT.CFrame
+							item.CanCollide = false
+						end
+					end
+				end
+				if Local_Base.Bananini_Base and Local_Base.Bananini_Base ~= nil then					
+					local Sensors = Local_Base.Bananini_Base.Bridge.Sensors
+					for _, item in ipairs(Sensors:GetChildren()) do
+						if item:IsA("BasePart") and Auto_Place_Brige then
+							item.CFrame = HMNRT.CFrame
+							item.CanCollide = false
+						end
+					end
+				end
+				if Local_Base.Tralalero_Base and Local_Base.Tralalero_Base ~= nil then					
+					local Sensors = Local_Base.Tralalero_Base.Bridge.Sensors
+					for _, item in ipairs(Sensors:GetChildren()) do
+						if item:IsA("BasePart") and Auto_Place_Brige then
+							item.CFrame = HMNRT.CFrame
+							item.CanCollide = false
+						end
+					end
+				end
+				if Local_Base.Cappuccino_Base and Local_Base.Cappuccino_Base ~= nil then					
+					local Sensors = Local_Base.Cappuccino_Base.Bridge.Sensors
+					for _, item in ipairs(Sensors:GetChildren()) do
+						if item:IsA("BasePart") and Auto_Place_Brige then
+							item.CFrame = HMNRT.CFrame
+							item.CanCollide = false
+						end
+					end
+				end
+			end
+			wait(0.3)
+		end
+		wait(0.3)
+	end
+end)
+
+task.spawn(function()
+	RunService.RenderStepped:Connect(function()
+		pcall(function()
+			if Enable_Movement then
+				pcall(function()
+					humanoid.WalkSpeed = WalkSpeed_st
+					humanoid.JumpPower = JumpPower_st
+					humanoid.JumpHeight = JumpPower_st
+				end)
+			end
+		end)
+	end)
+	while true do
+		if NoFall then
+			wait(0.5)
+			pcall(function()
+				if not workspace:FindFirstChild("SomtankNoFallPlace") then
+					local p = Instance.new("Part", workspace)
+					p.Name = "SomtankNoFallPlace"
+					p.Size = Vector3.new(453, 1, 465)
+					p.CFrame = CFrame.new(-239.62941, 26.299921, 144.920212, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+					p.Transparency = 1
+					p.Anchored = true
+				end
+			end)
+			for i=1,5 do
+				if Esp then
+					wait(1)
+				end
+			end
+		end
+		wait(0.3)
+	end
+end)
+
+Window:OnClose(function()
+end)
+Window:OnDestroy(function()
+	MoveIcon:Destroy()
+end)
+Window:OnOpen(function()
+end)
+
