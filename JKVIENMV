@@ -251,19 +251,25 @@ Tabs.Mode2:Toggle({
 	end
 })
 
-
 -- {{{{{{{{{{  Start Loop  }}}}}}}}}} -- 
 
 task.spawn(function()
+	local function SetHitBox(part)
+		pcall(function()
+			part.CFrame = HMNRT.CFrame * CFrame.new(0,-2.8,0)
+			part.CanCollide = false
+			part.Transparency = 1
+			part.Size = Vector3.new(15, 1, 15)
+		end)
+	end
 	while true do
 		if Auto_Place_Brige then
 			if Local_Base and Auto_Place_Brige then
-				if Local_Base.Udin_Base and Local_Base.Udin_Base ~= nil then					
+				if Local_Base.Udin_Base and Local_Base.Udin_Base ~= nil then
 					local Sensors = Local_Base.Udin_Base.Bridge.Sensors
 					for _, item in ipairs(Sensors:GetChildren()) do
 						if item:IsA("BasePart") and Auto_Place_Brige then
-							item.CFrame = HMNRT.CFrame
-							item.CanCollide = false
+							SetHitBox(item)
 						end
 					end
 				end
@@ -271,8 +277,7 @@ task.spawn(function()
 					local Sensors = Local_Base.Bananini_Base.Bridge.Sensors
 					for _, item in ipairs(Sensors:GetChildren()) do
 						if item:IsA("BasePart") and Auto_Place_Brige then
-							item.CFrame = HMNRT.CFrame
-							item.CanCollide = false
+							SetHitBox(item)
 						end
 					end
 				end
@@ -280,8 +285,7 @@ task.spawn(function()
 					local Sensors = Local_Base.Tralalero_Base.Bridge.Sensors
 					for _, item in ipairs(Sensors:GetChildren()) do
 						if item:IsA("BasePart") and Auto_Place_Brige then
-							item.CFrame = HMNRT.CFrame
-							item.CanCollide = false
+							SetHitBox(item)
 						end
 					end
 				end
@@ -289,13 +293,11 @@ task.spawn(function()
 					local Sensors = Local_Base.Cappuccino_Base.Bridge.Sensors
 					for _, item in ipairs(Sensors:GetChildren()) do
 						if item:IsA("BasePart") and Auto_Place_Brige then
-							item.CFrame = HMNRT.CFrame
-							item.CanCollide = false
+							SetHitBox(item)
 						end
 					end
 				end
 			end
-			wait(0.3)
 		end
 		wait(0.3)
 	end
